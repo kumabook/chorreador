@@ -1,0 +1,28 @@
+{
+  "name": "esprofiler",
+  "version": "0.0.1",
+  "description": "JavaScript based JavaScript profiler",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kumabook/esprofiler.git"
+  },
+  "keywords": [
+    "javascript"
+  ],
+  "author": "kumabook",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/kumabook/esprofiler/issues"
+  },
+  "dependencies": {
+    "coffee-script": "*",
+    "esmorph": "git://github.com/ariya/esmorph.git"
+  },
+  "main": "./index",
+  "homepage": "https://github.com/kumabook/esprofiler",
+  "devDependencies": {}
+}

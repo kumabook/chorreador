@@ -1,0 +1,11 @@
+#!/usr/bin/env coffee
+
+fs         = require 'fs'
+esprofiler = require '..'
+
+filename = process.argv[2]
+
+fs.readFile filename, (err, source) ->
+  console.log esprofiler.Injector.inject source.toString(),
+                                         filename,
+                                         esprofiler.SimpleLogger
