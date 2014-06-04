@@ -21,7 +21,8 @@
   "dependencies": {
     "coffee-script": "*",
     "esmorph": "git://github.com/ariya/esmorph.git",
-    "express": "*"
+    "express": "*",
+    "jsdom": "*"
   },
   "main": "./index",
   "homepage": "https://github.com/kumabook/esprofiler",
