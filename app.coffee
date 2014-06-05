@@ -1,12 +1,20 @@
 express    = require 'express'
 path       = require 'path'
 fs         = require 'fs'
-#esprofiler = require './index'
 
 Tracer     = require './src/tracer'
 Injector   = require './src/injector'
+HTML       = require './src/html'
+Source     = require './src/source'
+Func       = require './src/func'
+Call       = require './src/call'
 
 app = express()
+
+port      = process.argv[2] || 3000
+targetDir = process.argv[3] || 'target'
+
+htmlList = []
 
 tracer = new Tracer('./src/simple-logger-client.js', 'logger.trace')
 mimeTypes =
@@ -27,24 +35,36 @@ app.get('/hello.txt', (req, res) ->
 app.get('/logs/create', (req, res) ->
   res.writeHead 200,
     'Content-Type': mimeTypes['.txt']
-  if req.method == 'GET'
-    console.log req.query
+  html   = htmlList[req.headers.referer]
+  source = html.sources[req.query.file] if html?
+  func   = source.funcs[req.query.func] if source?
+  func.calls.push(new Call(func, new Date(), new Date(), '')) if func?
+  console.log "#{func.name} #{func.calls.length}"
   res.end()
 )
-logItems = {}
-addLogItem = (logItem) ->
-  logItems[logItem.id] ?= {}
-  logItems[logItem.id][logItem.phase] = logItem
-#  console.log logItem.phase
-#  console.log("func(id=#{logItem.id},#{logItem.func},#{logItem.line})")
-  if logItem.phase == 'end'
-    funcItem = logItems[logItem.id]
-    startTime = funcItem.start.timestamp if funcItem.start?
-    endTime   = funcItem.end.timestamp
-    funcItem.duration = endTime - startTime
-    console.log("#{logItem.id},\"#{logItem.file}\",\"#{logItem.func}\",\"#{funcItem.start.line}-#{funcItem.end.line}\",#{funcItem.duration}")
-#    console.log("time of id=#{logItem.id}) is #{funcItem.duration}")
 
+app.get('/htmls/:hid/sources/:sid/funcs/:fid/traces/:tid/calls/create', (req, res) ->
+  res.writeHead 200, {
+    'Content-Type': mimeTypes['.txt']
+  }
+  html   = htmlList.filter((h) -> h.id == ~~req.params.hid)[0]
+  source = html.sources.filter((s) -> s.id == ~~req.params.sid)[0] if html?
+  func   = source.funcs.filter((f) -> f.id == ~~req.params.fid)[0] if source?
+  trace  = func.traces.filter((t) -> t.id == ~~req.params.tid)[0] if trace?
+  if func?
+    unfinishedCall = func.getUnfinishedCall()
+    if unifinishedCall?
+      unfinishedCall.traces.push trace
+      unfinishedCall.endTime = req.query.time
+    else
+      func.calls.push(new Call(func, req.query.caller, req.query.time))
+#    console.log "#{func.name} #{func.calls.length}"
+  res.end()
+)
+
+app.post('/htmls/summarize', (req, res) ->
+  html = htmlList[req.headers.refer]
+)
 
 app.get('/srcs/:src_id/logs/create', (req, res) ->
 )
@@ -54,45 +74,54 @@ app.get('/srcs/:src_id/logs/summarize', (req, res) ->
 
 app.get('/apps/:app_id/logs/create', (req, res) ->
 )
-app.use(express.static(__dirname + '/assets'))
-
 app.get(/^\/target\/(.*)?/, (req, res) ->
-  fileName = path.join process.cwd() + '/target/', req.params[0]
-  console.log fileName
+  fileName = path.join process.cwd() + "/#{targetDir}/", req.params[0]
+#  console.log fileName
 
   if fs.existsSync(fileName) && fs.statSync(fileName).isDirectory()
     fileName += '/index.html'
   else if fs.existsSync fileName
-    renderStaticFile req, res, fileName, req.originalUrl
+    renderStaticFile req, res, fileName
   else
     renderNotFound req, res
 )
 
-server = app.listen(3000, ->
+server = app.listen(port, ->
   console.log('Listening on port %d', server.address().port)
 )
 
 renderNotFound = (req, res) ->
-  res.writeHead 404
   res.contentType('text/plain')
+  res.writeHead 404
   res.write '404 Not Found\n'
   res.end()
 
-
-renderStaticFile = (req, res, fileName, uri) ->
+renderStaticFile = (req, res, fileName) ->
   ext  = path.extname fileName
   res.contentType(mimeTypes[ext])
   res.writeHead 200
 
   fs.readFile fileName, 'binary', (error, file) ->
-#    if (injectedSources.filter (s) -> fileName.match s).length > 0
-    if ext == ".js"
-      file = Injector.injectFunctionTracer file.toString(),
-                                           uri,
-                                           tracer
-    else if ext == ".html"
+    uri = req.protocol + '://' + req.get('host') + req.url
+    referer = req.headers.referer
+
+    if ext == ".html"
+      html = new HTML(uri, fileName)
+      htmlList[uri] = html
+      htmlList.push html
       file = Injector.injectFunctionTracerDefinition(
         file.toString(),
         tracer.tracerDefinition)
+    else if ext == ".js"
+      code = file.toString()
+      html = htmlList[referer]
+      if html?
+#        console.log " #{uri} from #{referer}"
+        source = new Source(uri, code, html)
+        html.sources[uri] = source
+        html.sources.push source
+
+      file = Injector.injectFunctionTracer source, tracer
+#      console.log source.funcs
     res.write(file, 'binary')
     res.end()

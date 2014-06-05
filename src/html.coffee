@@ -1,5 +1,7 @@
 class HTML
-  constructor: (@url, @path) ->
+  _id = 1
+  constructor: (@uri, @path) ->
+    @id = _id++
     @sources = []
 
 module.exports = HTML
