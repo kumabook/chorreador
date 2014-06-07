@@ -1,0 +1,17 @@
+#!/usr/bin/env coffee
+
+fs         = require 'fs'
+esprofiler = require '..'
+
+filename = process.argv[2]
+
+fs.readFile filename, (err, code) ->
+  source = new esprofiler.Source(filename, code.toString())
+  tracer = new esprofiler.ConsoleTracer()
+  esprofiler.Injector.injectFunctionTrace source,
+                                          tracer
+  esprofiler.Injector.injectFunctionTraceDefinition source,
+                                                    tracer
+  console.log source.code
+  console.log '--------------------'
+  eval source.code

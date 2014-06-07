@@ -1,9 +1,8 @@
 fs = require 'fs'
 class Tracer
-  constructor: (@tracerDefinitionFile, @name) ->
-    fs.readFile @tracerDefinitionFile, 'binary', (error, file) =>
-      if error?
-        console.log "error"
-      else
-        @tracerDefinition = file.toString()
+  name: 'esprofiler',
+  generateTraceDefinition: () ->
+    throw new Error 'not implemented'
+  traceDefinition: (global) ->
+    throw new Error 'not implemented'
 module.exports = Tracer

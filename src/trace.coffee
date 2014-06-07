@@ -1,8 +1,11 @@
+esprima = require 'esprima'
 class Trace
   _id = 1
-  constructor: (@func, @range, @position) ->
+  constructor: (@func, @range, @position, @tracer) ->
     @id = _id++
-  toParam: () ->
+  toAST: ->
+    (esprima.parse "#{@tracer.name}.trace(#{@toParam()})")
+  toParam: ->
     json = {
       id: @id,
       range: @range,
@@ -11,7 +14,7 @@ class Trace
     if @func?
       json['func_id'] = @func.id
       json['source_id'] = @func.source.id
-      json['html_id'] = @func.source.html.id
+      json['html_id'] = @func.source.html.id if @func.source.html?
     JSON.stringify(json)
 
 module.exports = Trace

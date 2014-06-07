@@ -2,7 +2,7 @@
   "name": "esprofiler",
   "version": "0.0.1",
   "description": "JavaScript based JavaScript profiler",
-  "main": "index.js",
+  "main": "./index",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -19,12 +19,16 @@
     "url": "https://github.com/kumabook/esprofiler/issues"
   },
   "dependencies": {
+    "esprima": "*",
     "coffee-script": "*",
-    "esmorph": "git://github.com/ariya/esmorph.git",
+    "estraverse": "*",
+    "escodegen": "*",
     "express": "*",
     "jsdom": "*"
   },
-  "main": "./index",
   "homepage": "https://github.com/kumabook/esprofiler",
-  "devDependencies": {}
+  "devDependencies": {
+    "espower-loader": "^0.7.1",
+    "power-assert": "^0.7.2"
+  }
 }

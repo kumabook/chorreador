@@ -1,6 +1,15 @@
-Injector     = require './src/injector'
-SimpleLogger = require './src/simple-logger'
+Injector      = require './src/injector'
+Tracer        = require './src/tracer'
+ConsoleTracer = require './src/console_tracer'
+Trace         = require './src/trace'
+Func          = require './src/func'
+Source        = require './src/source'
+
 module.exports = {
-  Injector
-  SimpleLogger
+  Injector,
+  Tracer,
+  ConsoleTracer,
+  Trace,
+  Func,
+  Source
 }

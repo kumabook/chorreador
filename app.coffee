@@ -1,13 +1,13 @@
-express    = require 'express'
-path       = require 'path'
-fs         = require 'fs'
+express       = require 'express'
+path          = require 'path'
+fs            = require 'fs'
 
-Tracer     = require './src/tracer'
-Injector   = require './src/injector'
-HTML       = require './src/html'
-Source     = require './src/source'
-Func       = require './src/func'
-Call       = require './src/call'
+RemoteTracer  = require './src/remote_tracer'
+Injector      = require './src/injector'
+HTML          = require './src/html'
+Source        = require './src/source'
+Func          = require './src/func'
+Call          = require './src/call'
 
 app = express()
 
@@ -16,7 +16,7 @@ targetDir = process.argv[3] || 'target'
 
 htmlList = []
 
-tracer = new Tracer('./src/simple-logger-client.js', 'logger.trace')
+tracer = new RemoteTracer()
 mimeTypes =
   ".html": "text/html",
   ".css" : "text/css",
@@ -58,7 +58,7 @@ app.get('/htmls/:hid/sources/:sid/funcs/:fid/traces/:tid/calls/create', (req, re
       unfinishedCall.endTime = req.query.time
     else
       func.calls.push(new Call(func, req.query.caller, req.query.time))
-#    console.log "#{func.name} #{func.calls.length}"
+    console.log "#{func.name} #{func.calls.length}"
   res.end()
 )
 
@@ -109,9 +109,9 @@ renderStaticFile = (req, res, fileName) ->
       html = new HTML(uri, fileName)
       htmlList[uri] = html
       htmlList.push html
-      file = Injector.injectFunctionTracerDefinition(
+      file = Injector.injectFunctionTraceDefinition2HTML(
         file.toString(),
-        tracer.tracerDefinition)
+        tracer)
     else if ext == ".js"
       code = file.toString()
       html = htmlList[referer]
@@ -121,7 +121,6 @@ renderStaticFile = (req, res, fileName) ->
         html.sources[uri] = source
         html.sources.push source
 
-      file = Injector.injectFunctionTracer source, tracer
-#      console.log source.funcs
+      file = Injector.injectFunctionTrace source, tracer
     res.write(file, 'binary')
     res.end()
