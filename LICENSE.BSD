@@ -1,36 +1,3 @@
-# esprofiler
-## About
-esprofiler is ECMAScript based ECMAScript profiler.
-This tool aims to enable broswers that don't have native profiler such as "Chrome Developer Tool" to profile their javascript performace.
-
-esprofiler is inspired by esmorph: https://github.com/ariya/esmorph.
-Thank the creator of esmorph.
-And esprofiler uses esprima, estraverse, escodegen, and jsdom.
-Thank these library creators and contributors, too.
-
-## How to use
-- First, install dependencies:
-```
-    $ npm install -g coffee-script
-    $ npm install
-```
-- Copy the html that you want to profile to 'target' direcotry
-- Run esprofielr server:
-```
-    $ bin/esprofiler
-```
-- Open the html with Browser, ex: http://localhost:3000/target/index.html
-- Then, print the summary of javascript traces on console.
-
-- You can alos use `estracer` as trace code injector.
-```
-    $ bin/estracer xxxx.js
-```
-
-## License
-
-Copyright (C) 2014 Hiroki Kumamoto (twitter: @kumabook).
-
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 

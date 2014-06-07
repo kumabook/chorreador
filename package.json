@@ -24,12 +24,8 @@
     "estraverse": "*",
     "escodegen": "*",
     "express": "*",
+    "body-parser": "^1.3.0",
     "jsdom": "*"
   },
-  "homepage": "https://github.com/kumabook/esprofiler",
-  "devDependencies": {
-    "body-parser": "^1.3.0",
-    "espower-loader": "^0.7.1",
-    "power-assert": "^0.7.2"
-  }
+  "homepage": "https://github.com/kumabook/esprofiler"
 }
