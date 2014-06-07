@@ -1,4 +1,5 @@
 express       = require 'express'
+bodyParser    = require('body-parser')
 path          = require 'path'
 fs            = require 'fs'
 
@@ -9,14 +10,12 @@ Source        = require './src/source'
 Func          = require './src/func'
 Call          = require './src/call'
 
-app = express()
-
+app       = express()
 port      = process.argv[2] || 3000
 targetDir = process.argv[3] || 'target'
-
-htmlList = []
-
-tracer = new RemoteTracer()
+htmlList  = []
+profiles  = []
+tracer    = new RemoteTracer()
 mimeTypes =
   ".html": "text/html",
   ".css" : "text/css",
@@ -27,23 +26,14 @@ mimeTypes =
   ".gif" : "image/gif",
   ".txt" : "text/plain"
 
-
-app.get('/hello.txt', (req, res) ->
-  res.send('Hello World')
-)
-
-app.get('/logs/create', (req, res) ->
-  res.writeHead 200,
+app.use bodyParser()
+app.get '/index.html', (req, res) ->
+  res.writeHead 200, {
     'Content-Type': mimeTypes['.txt']
-  html   = htmlList[req.headers.referer]
-  source = html.sources[req.query.file] if html?
-  func   = source.funcs[req.query.func] if source?
-  func.calls.push(new Call(func, new Date(), new Date(), '')) if func?
-  console.log "#{func.name} #{func.calls.length}"
-  res.end()
-)
+  }
+  res.send('This is esprofiler project.')
 
-app.get('/htmls/:hid/sources/:sid/funcs/:fid/traces/:tid/calls/create', (req, res) ->
+app.get '/htmls/:hid/sources/:sid/funcs/:fid/traces/:tid/calls/create', (req, res) ->
   res.writeHead 200, {
     'Content-Type': mimeTypes['.txt']
   }
@@ -60,20 +50,29 @@ app.get('/htmls/:hid/sources/:sid/funcs/:fid/traces/:tid/calls/create', (req, re
       func.calls.push(new Call(func, req.query.caller, req.query.time))
     console.log "#{func.name} #{func.calls.length}"
   res.end()
-)
 
-app.post('/htmls/summarize', (req, res) ->
-  html = htmlList[req.headers.refer]
-)
+app.post '/htmls/:html_id/summarize', (req, res) ->
+  html = htmlList.filter((h) -> h.id == ~~req.params.html_id)[0]
+  traces = req.body
+  for trace in traces
+    source = html.sources.filter((s) -> s.id == ~~trace.source_id)[0]
+    func   = source.funcs.filter((f) -> f.id == ~~trace.func_id)[0] if source?
+    if func?
+      unfinishedCall = func.getUnfinishedCall()
+      if unifinishedCall?
+        unfinishedCall.traces.push trace
+        unfinishedCall.endTime = req.query.time
+      else
+        func.calls.push(new Call(func, trace.caller, trace.time))
+  for source in html.sources
+    for func in source.funcs
+      if func.calls.length > 0
+        console.log "#{source.path}: #{func.name} #{func.calls.length}"
+  res.contentType('text/plain')
+  res.writeHead 200
+  res.write 'Summarize completed.\n'
+  res.end()
 
-app.get('/srcs/:src_id/logs/create', (req, res) ->
-)
-
-app.get('/srcs/:src_id/logs/summarize', (req, res) ->
-)
-
-app.get('/apps/:app_id/logs/create', (req, res) ->
-)
 app.get(/^\/target\/(.*)?/, (req, res) ->
   fileName = path.join process.cwd() + "/#{targetDir}/", req.params[0]
 #  console.log fileName
@@ -104,19 +103,17 @@ renderStaticFile = (req, res, fileName) ->
   fs.readFile fileName, 'binary', (error, file) ->
     uri = req.protocol + '://' + req.get('host') + req.url
     referer = req.headers.referer
-
     if ext == ".html"
       html = new HTML(uri, fileName)
-      htmlList[uri] = html
       htmlList.push html
       file = Injector.injectFunctionTraceDefinition2HTML(
         file.toString(),
+        html.id,
         tracer)
     else if ext == ".js"
       code = file.toString()
-      html = htmlList[referer]
+      html = htmlList.filter((h) -> h.uri == referer)[0]
       if html?
-#        console.log " #{uri} from #{referer}"
         source = new Source(uri, code, html)
         html.sources[uri] = source
         html.sources.push source
