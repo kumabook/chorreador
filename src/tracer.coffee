@@ -1,7 +1,7 @@
 fs = require 'fs'
 class Tracer
   name: 'esprofiler',
-  generateTraceDefinition: () ->
+  generateTraceDefinition: (htmlID, profileID) ->
     throw new Error 'not implemented'
   traceDefinition: (global) ->
     throw new Error 'not implemented'

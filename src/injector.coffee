@@ -25,10 +25,10 @@ class Injector
           if parent.value == node && parent.key.name
             return parent.key.name
 
-  @injectFunctionTraceDefinition2HTML: (html, htmlID, tracer) ->
-    window = jsdom.jsdom(html).parentWindow
+  @injectFunctionTraceDefinition2HTML: (html, profile, tracer) ->
+    window   = jsdom.jsdom(html.code).parentWindow
     scriptEl = window.document.createElement("script")
-    scriptEl.innerHTML = tracer.generateTraceDefinition htmlID
+    scriptEl.innerHTML = tracer.generateTraceDefinition html.id, profile.id
     window.document.head.appendChild(scriptEl)
     console.log window.document.innerHTML
     window.document.innerHTML
