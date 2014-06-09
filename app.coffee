@@ -90,6 +90,8 @@ app.post '/htmls/:hid/profiles/:pid/summarize', (req, res) ->
   res.writeHead 200
   res.write 'Summarize completed.\n'
   res.end()
+  console.log "Summarize completed: total #{traces.length} traces " +
+              "and #{profile.calls.length} function calls."
 
 app.get(/^\/target\/(.*)?/, (req, res) ->
   fileName = path.join process.cwd() + "/#{targetDir}/", req.params[0]
