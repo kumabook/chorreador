@@ -27,10 +27,11 @@ class Injector
 
   @injectFunctionTraceDefinition2HTML: (html, profile, tracer) ->
     window   = jsdom.jsdom(html.code).parentWindow
-    scriptEl = window.document.createElement("script")
+    doc      = window.document
+    scriptEl = doc.createElement("script")
     scriptEl.innerHTML = tracer.generateTraceDefinition html.id, profile.id
-    window.document.head.appendChild(scriptEl)
-    console.log window.document.innerHTML
+    doc.head.insertBefore scriptEl, doc.head.firstChild
+    console.log doc.innerHTML
     window.document.innerHTML
   @injectFunctionTraceDefinition: (source, tracer) ->
     source.code = tracer.generateTraceDefinition() + source.code
