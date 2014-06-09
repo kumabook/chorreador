@@ -45,20 +45,20 @@ class Injector
       enter: (node, parent) =>
         funcName = Injector.findFuncName node, parent, source.code
         if funcName?
-          func = new Func(funcName, node.range, source)
+          func = new Func(funcName, node.loc, node.range, source)
           node.func = func
           funcStack.push(func)
           funcList.push(func)
-          trace = new Trace(func, node.range, 'start', tracer)
+          trace = new Trace(func, node.loc, node.range, 'start', tracer)
           node.body.body = trace.toAST().body.concat node.body.body
         if node.type == esprima.Syntax.ReturnStatement
           func = funcStack[funcStack.length - 1]
-          trace = new Trace(func, node.range, 'return', tracer)
+          trace = new Trace(func, node.loc, node.range, 'return', tracer)
           @injectBeforeReturnStatement node, parent, trace
       leave: (node, parent) ->
         if node.func?
           func = funcStack.pop()
-          trace = new Trace(func, node.range, 'end', tracer)
+          trace = new Trace(func, node.loc, node.range, 'end', tracer)
           node.body.body = node.body.body.concat trace.toAST().body
           console.assert node.func == func
     }

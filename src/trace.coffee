@@ -1,13 +1,14 @@
 esprima = require 'esprima'
 class Trace
   _id = 1
-  constructor: (@func, @range, @position, @tracer) ->
+  constructor: (@func, @loc, @range, @position, @tracer) ->
     @id = _id++
   toAST: ->
     (esprima.parse "#{@tracer.name}.trace(#{@toParam()})")
   toParam: ->
     json = {
       id: @id,
+      loc: @loc,
       range: @range,
       position: @position
     }

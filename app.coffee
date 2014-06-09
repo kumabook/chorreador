@@ -77,7 +77,10 @@ app.post '/htmls/:hid/profiles/:pid/summarize', (req, res) ->
           call.traces.push trace
           call.endTime = trace.time
         else
-          console.log "warning: unexpected function trace #{func.name}"
+          console.log "warning: unexpected function trace " +
+            "#{source.path} #{func.loc.start.line} " +
+            "id:#{func.id} #{func.name} trace_id:#{trace.id} " +
+            "#{trace.loc.start.line}"
   for source in html.sources
     for func in source.funcs
       count = profile.calls.filter((c) -> c.func == func).length
