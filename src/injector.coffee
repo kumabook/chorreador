@@ -49,7 +49,7 @@ class Injector
           node.func = func
           funcStack.push(func)
           funcList.push(func)
-          trace = new Trace(node.func, node.range, 'start', tracer)
+          trace = new Trace(func, node.range, 'start', tracer)
           node.body.body = trace.toAST().body.concat node.body.body
         if node.type == esprima.Syntax.ReturnStatement
           func = funcStack[funcStack.length - 1]
@@ -67,7 +67,8 @@ class Injector
     traceNode = trace.toAST()
     switch parent.type
       when esprima.Syntax.BlockStatement
-        parent.body = traceNode.body.concat parent.body
+        index = parent.body.indexOf node
+        parent.body.splice index, 0, traceNode if  index != -1
       when esprima.Syntax.SwitchCase
         parent.consequent.splice parent.consequent.length-1, 0, traceNode
       when esprima.Syntax.IfStatement
