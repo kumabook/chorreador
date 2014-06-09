@@ -28,7 +28,8 @@ mimeTypes    = {
   ".txt" : "text/plain"
 }
 
-app.use bodyParser()
+app.use bodyParser
+  limit: 1024 * 1024 * 500
 app.get '/index.html', (req, res) ->
   res.writeHead 200, {
     'Content-Type': mimeTypes['.txt']
