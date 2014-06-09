@@ -24,6 +24,8 @@ class Injector
         if parent.key.type == 'Identifier'
           if parent.value == node && parent.key.name
             return parent.key.name
+      console.log parent
+      throw new Error('unexpected FunctionExpression')
 
   @injectFunctionTraceDefinition2HTML: (html, profile, tracer) ->
     window   = jsdom.jsdom(html.code).parentWindow
