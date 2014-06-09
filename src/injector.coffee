@@ -4,37 +4,38 @@ estraverse = require 'estraverse'
 jsdom      = require 'jsdom'
 Trace      = require './trace'
 Func       = require './func'
-Syntax     = esprima.Syntax
+S          = esprima.Syntax
 
 class Injector
   @findFuncName: (node, parent, code) ->
-    if node.type == Syntax.FunctionDeclaration
+    if node.type == S.FunctionDeclaration
       return node.id.name;
-    else if node.type == Syntax.FunctionExpression
-      if parent.type == Syntax.AssignmentExpression
-        if typeof parent.left.range != 'undefined'
-          return code.slice(parent.left.range[0],
-                            parent.left.range[1]).replace(/"/g, '\\"');
-      else if parent.type == Syntax.VariableDeclarator
-        return parent.id.name;
-      else if parent.type == Syntax.CallExpression
-        return if parent.callee.id then parent.callee.id.name else '[Anonymous]'
-      else if parent.type == Syntax.ReturnStatement
-        return '[Anonymous]'
-      else if parent.type == Syntax.LogicalExpression
-        return '[Anonymous]'
-      else if parent.type == Syntax.ConditionalExpression
-        return '[Anonymous]'
+    else if node.type == S.FunctionExpression
+      switch parent.type
+        when S.AssignmentExpression
+          if typeof parent.left.range != 'undefined'
+            return code.slice(parent.left.range[0],
+                              parent.left.range[1]).replace(/"/g, '\\"');
+        when S.VariableDeclarator
+          return parent.id.name;
+        when S.CallExpression
+          if parent.callee.id
+            return parent.callee.id.name
+          else
+            return  '[Anonymous]'
+        when S.ReturnStatement, S.LogicalExpression, S.ConditionalExpression
+          return '[Anonymous]'
 
-      else if typeof parent.length == 'number'
+      if typeof parent.length == 'number'
         return if parent.id then parent.id.name else '[Anonymous]';
       else if typeof parent.key != 'undefined'
-        if parent.key.type == 'Identifier'
-          if parent.value == node && parent.key.name
-            return parent.key.name
-        else if parent.key.type == 'Literal'
-          if parent.value == node && parent.key.value?
-            return parent.key.value
+        switch parent.key.type
+          when 'Identifier'
+            if parent.value == node && parent.key.name
+              return parent.key.name
+          when 'Literal'
+            if parent.value == node && parent.key.value?
+              return parent.key.value
       return '[Anonymous]'
 #      throw new Error('unexpected FunctionExpression')
 
@@ -65,7 +66,7 @@ class Injector
           funcList.push(func)
           trace = new Trace(func, node.loc, node.range, 'start', tracer)
           node.body.body = trace.toAST().body.concat node.body.body
-        if node.type == Syntax.ReturnStatement
+        if node.type == S.ReturnStatement
           func = funcStack[funcStack.length - 1]
           trace = new Trace(func, node.loc, node.range, 'return', tracer)
           @injectBeforeReturnStatement node, parent, trace
@@ -80,32 +81,32 @@ class Injector
   @injectBeforeReturnStatement: (node, parent, trace) ->
     traceNode = trace.toAST()
     switch parent.type
-      when Syntax.BlockStatement
+      when S.BlockStatement
         index = parent.body.indexOf node
         parent.body.splice index, 0, traceNode if  index != -1
-      when Syntax.SwitchCase
+      when S.SwitchCase
         parent.consequent.splice parent.consequent.length-1, 0, traceNode
-      when Syntax.IfStatement
+      when S.IfStatement
         if parent.consequent == node
           parent.consequent = {
-            type: Syntax.BlockStatement,
+            type: S.BlockStatement,
             body: [traceNode, node]
           }
         else if parent.alternate == node
           parent.alternate = {
-            type: Syntax.BlockStatement,
+            type: S.BlockStatement,
             body: [traceNode, node]
           }
         else
           throw new Error('unexpected return statement')
-      when Syntax.WhileStatement
+      when S.WhileStatement
         parent.body = {
-          type: Syntax.BlockStatement,
+          type: S.BlockStatement,
           body: [traceNode, node]
       }
-      when Syntax.ForStatement
+      when S.ForStatement
         parent.body = {
-          type: Syntax.BlockStatement,
+          type: S.BlockStatement,
           body: [traceNode, node]
       }
       else
