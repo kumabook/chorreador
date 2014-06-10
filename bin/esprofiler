@@ -3,7 +3,7 @@ fs         = require 'fs'
 esprofiler = require '../'
 
 port = process.argv[2] || 3000
-dir  = process.argv[3] || 'target'
+dir  = process.argv[3] || 'instrumented'
 
 server = new esprofiler.Server(port, dir)
 server.run()

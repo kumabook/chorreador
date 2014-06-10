@@ -23,7 +23,7 @@ mimeTypes   = {
 }
 
 class Server
-  constructor: (@port, @targetDir) ->
+  constructor: (@port, @instrumentedDir) ->
     @app         = express()
     @htmlList    = []
     @profileList = []
@@ -36,7 +36,7 @@ class Server
     @app.get '/',                                    @handleTop
     @app.get  callCreatePath,                        @handleCallCreate
     @app.post '/htmls/:hid/profiles/:pid/summarize', @handleSummarize
-    @app.get  /^\/target\/(.*)?/,                    @handleTarget
+    @app.get  /^\/instrumented\/(.*)?/,              @handleTarget
   run: () ->
     @server = @app.listen @port, =>
       console.log "Listening on port #{@server.address().port}"
@@ -104,7 +104,7 @@ class Server
     console.log "Summarize completed: total #{traces.length} traces " +
                 "and #{profile.calls.length} function calls."
   handleTarget: (req, res) =>
-    fileName = path.join process.cwd() + "/#{@targetDir}/", req.params[0]
+    fileName = path.join process.cwd() + "/#{@instrumentedDir}/", req.params[0]
 #  console.log fileName
     if fs.existsSync(fileName) && fs.statSync(fileName).isDirectory()
       fileName += '/index.html'
