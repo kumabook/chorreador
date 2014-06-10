@@ -8,10 +8,10 @@ filename = process.argv[2]
 fs.readFile filename, (err, code) ->
   source = new esprofiler.Source(filename, code.toString())
   tracer = new esprofiler.ConsoleTracer()
-  esprofiler.Injector.injectFunctionTrace source,
+  esprofiler.Instrumentor.instrumentTrace source,
                                           tracer
-  esprofiler.Injector.injectFunctionTraceDefinition source,
-                                                    tracer
+  esprofiler.Instrumentor.instrumentFunctionTraceDefinition source,
+                                                            tracer
   console.log source.code
   console.log '--------------------'
   eval source.code

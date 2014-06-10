@@ -1,4 +1,4 @@
-Injector      = require './src/injector'
+Instrumentor  = require './src/instrumentor'
 Tracer        = require './src/tracer'
 ConsoleTracer = require './src/console_tracer'
 Trace         = require './src/trace'
@@ -7,7 +7,7 @@ Source        = require './src/source'
 Server        = require './src/server'
 
 module.exports = {
-  Injector,
+  Instrumentor,
   Tracer,
   ConsoleTracer,
   Trace,

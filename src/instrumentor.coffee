@@ -6,7 +6,7 @@ Trace      = require './trace'
 Func       = require './func'
 S          = esprima.Syntax
 
-class Injector
+class Instrumentor
   @findFuncName: (node, parent, code) ->
     if node.type == S.FunctionDeclaration
       return node.id.name;
@@ -39,7 +39,7 @@ class Injector
       return '[Anonymous]'
 #      throw new Error('unexpected FunctionExpression')
 
-  @injectFunctionTraceDefinition2HTML: (html, profile, tracer) ->
+  @instrumentFunctionTraceDefinition2HTML: (html, profile, tracer) ->
     window   = jsdom.jsdom(html.code).parentWindow
     doc      = window.document
     scriptEl = doc.createElement("script")
@@ -47,9 +47,9 @@ class Injector
     doc.head.insertBefore scriptEl, doc.head.firstChild
 #    console.log doc.innerHTML
     window.document.innerHTML
-  @injectFunctionTraceDefinition: (source, tracer) ->
+  @instrumentFunctionTraceDefinition: (source, tracer) ->
     source.code = tracer.generateTraceDefinition() + source.code
-  @injectFunctionTrace: (source, tracer) ->
+  @instrumentFunctionTrace: (source, tracer) ->
     funcList = source.funcs
     ast = esprima.parse source.code, {
       loc: true,
@@ -58,7 +58,7 @@ class Injector
     funcStack = []
     estraverse.traverse ast, {
       enter: (node, parent) =>
-        funcName = Injector.findFuncName node, parent, source.code
+        funcName = Instrumentor.findFuncName node, parent, source.code
         if funcName?
           func = new Func(funcName, node.loc, node.range, source)
           node.func = func
@@ -69,7 +69,7 @@ class Injector
         if node.type == S.ReturnStatement
           func = funcStack[funcStack.length - 1]
           trace = new Trace(func, node.loc, node.range, 'return', tracer)
-          @injectBeforeReturnStatement node, parent, trace
+          @instrumentBeforeReturnStatement node, parent, trace
       leave: (node, parent) ->
         if node.func?
           func = funcStack.pop()
@@ -78,7 +78,7 @@ class Injector
           console.assert node.func == func
     }
     source.code = escodegen.generate ast
-  @injectBeforeReturnStatement: (node, parent, trace) ->
+  @instrumentBeforeReturnStatement: (node, parent, trace) ->
     traceNode = trace.toAST()
     switch parent.type
       when S.BlockStatement
@@ -111,4 +111,4 @@ class Injector
       }
       else
         throw new Error('unexpected return statement')
-module.exports = Injector
+module.exports = Instrumentor

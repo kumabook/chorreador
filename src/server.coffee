@@ -1,15 +1,15 @@
-express       = require 'express'
-bodyParser    = require('body-parser')
-path          = require 'path'
-fs            = require 'fs'
+express      = require 'express'
+bodyParser   = require('body-parser')
+path         = require 'path'
+fs           = require 'fs'
 
-RemoteTracer  = require './remote_tracer'
-Injector      = require './injector'
-HTML          = require './html'
-Source        = require './source'
-Func          = require './func'
-Call          = require './call'
-Profile       = require './profile'
+RemoteTracer = require './remote_tracer'
+Instrumentor = require './instrumentor'
+HTML         = require './html'
+Source       = require './source'
+Func         = require './func'
+Call         = require './call'
+Profile      = require './profile'
 
 mimeTypes   = {
   ".html": "text/html",
@@ -136,7 +136,7 @@ class Server
           html.code = file.toString()
           profile   = new Profile(html)
           @profileList.push profile
-          file      = Injector.injectFunctionTraceDefinition2HTML(html,
+          file      = Instrumentor.instrumentFunctionTraceDefinition2HTML(html,
                                                                 profile,
                                                                 @tracer)
         when ".js"
@@ -148,7 +148,7 @@ class Server
             html.sources[uri] = source
             html.sources.push source
 
-          file = Injector.injectFunctionTrace source, @tracer
+          file = Instrumentor.instrumentFunctionTrace source, @tracer
       res.write(file, 'binary')
       res.end()
 module.exports = Server
