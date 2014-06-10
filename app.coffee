@@ -46,17 +46,18 @@ app.get '/htmls/:hid/profiles/:pid/sources/:sid/funcs/:fid/traces/:tid/calls/cre
   func   = source.funcs.filter((f) -> f.id == ~~req.params.fid)[0] if source?
   trace  = func.traces.filter((t) -> t.id == ~~req.params.tid)[0] if trace?
   if func?
-    if trace.position == 'start'
-      call = new Call(func, trace.caller, trace.time)
-      call.traces.push trace
-      profile.calls.push call
-    else
-      call = profile.latestUnfinishedCall func
-      if call?
+    switch  trace.position
+      when 'start'
+        call = new Call(func, trace.caller, trace.time)
         call.traces.push trace
-        call.endTime = trace.time
-      else
-        console.log "warning: unexpected function trace #{func.name}"
+        profile.calls.push call
+      when 'end', 'return'
+        call = profile.latestUnfinishedCall func
+        if call?
+          call.traces.push trace
+          call.endTime = trace.time
+        else
+          console.log "warning: unexpected function trace #{func.name}"
   res.end()
 
 app.post '/htmls/:hid/profiles/:pid/summarize', (req, res) ->
@@ -67,20 +68,21 @@ app.post '/htmls/:hid/profiles/:pid/summarize', (req, res) ->
     source = html.sources.filter((s) -> s.id == ~~trace.source_id)[0]
     func   = source.funcs.filter((f) -> f.id == ~~trace.func_id)[0] if source?
     if func?
-      if trace.position == 'start'
-        call = new Call(func, trace.caller, trace.time)
-        call.traces.push trace
-        profile.calls.push call
-      else
-        call = profile.latestUnfinishedCall func
-        if call?
+      switch trace.position
+        when 'start'
+          call = new Call(func, trace.caller, trace.time)
           call.traces.push trace
-          call.endTime = trace.time
-        else
-          console.log "warning: unexpected function trace " +
-            "#{source.path} #{func.loc.start.line} " +
-            "id:#{func.id} #{func.name} trace_id:#{trace.id} " +
-            "#{trace.loc.start.line}"
+          profile.calls.push call
+        when 'end', 'return'
+          call = profile.latestUnfinishedCall func
+          if call?
+            call.traces.push trace
+            call.endTime = trace.time
+          else
+            console.log "warning: unexpected function trace " +
+              "#{source.path} #{func.loc.start.line} " +
+              "id:#{func.id} #{func.name} trace_id:#{trace.id} " +
+              "#{trace.loc.start.line}"
   for source in html.sources
     for func in source.funcs
       count = profile.calls.filter((c) -> c.func == func).length
@@ -105,10 +107,6 @@ app.get(/^\/target\/(.*)?/, (req, res) ->
     renderNotFound req, res
 )
 
-server = app.listen(port, ->
-  console.log('Listening on port %d', server.address().port)
-)
-
 renderNotFound = (req, res) ->
   res.contentType('text/plain')
   res.writeHead 404
@@ -123,26 +121,33 @@ renderStaticFile = (req, res, fileName) ->
   fs.readFile fileName, 'binary', (error, file) ->
     uri = req.protocol + '://' + req.get('host') + req.url
     referer = req.headers.referer
-    if ext == ".html"
-      html = htmlList.filter((h) -> h.uri == uri)[0]
-      if !html?
-        html = new HTML(uri, fileName)
-        htmlList.push html
-      html.code = file.toString()
-      profile   = new Profile(html)
-      profileList.push profile
-      file      = Injector.injectFunctionTraceDefinition2HTML(html,
-                                                              profile,
-                                                              tracer)
-    else if ext == ".js"
-      code = file.toString()
-      html = htmlList.filter((h) -> h.uri == referer)[0]
-      profile = profileList.filter((h) -> h.uri == referer)[0]
-      if html?
-        source = new Source(uri, code, html)
-        html.sources[uri] = source
-        html.sources.push source
+    switch ext
+      when ".html"
+        html = htmlList.filter((h) -> h.uri == uri)[0]
+        if !html?
+          html = new HTML(uri, fileName)
+          htmlList.push html
+        html.code = file.toString()
+        profile   = new Profile(html)
+        profileList.push profile
+        file      = Injector.injectFunctionTraceDefinition2HTML(html,
+                                                                profile,
+                                                                tracer)
+      when ".js"
+        code = file.toString()
+        html = htmlList.filter((h) -> h.uri == referer)[0]
+        profile = profileList.filter((h) -> h.uri == referer)[0]
+        if html?
+          source = new Source(uri, code, html)
+          html.sources[uri] = source
+          html.sources.push source
 
-      file = Injector.injectFunctionTrace source, tracer
+        file = Injector.injectFunctionTrace source, tracer
     res.write(file, 'binary')
     res.end()
+var run = () ->
+  server = app.listen(port, ->
+    console.log('Listening on port %d', server.address().port)
+module.exports = {
+  run: run
+}
