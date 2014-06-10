@@ -4,6 +4,7 @@ ConsoleTracer = require './src/console_tracer'
 Trace         = require './src/trace'
 Func          = require './src/func'
 Source        = require './src/source'
+Server        = require './src/server'
 
 module.exports = {
   Injector,
@@ -11,5 +12,6 @@ module.exports = {
   ConsoleTracer,
   Trace,
   Func,
-  Source
+  Source,
+  Server
 }
