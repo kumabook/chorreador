@@ -23,6 +23,10 @@ html
     != css('built-editor')
     != js('built-editor')
     != js('application')
+    style.
+      .textviewTooltip{
+        z-index: 1000;
+      }
     script(type="text/javascript").
       var html = !{JSON.stringify(html)}
       var profile = !{JSON.stringify(profile)}
