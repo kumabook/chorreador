@@ -1,0 +1,29 @@
+doctype html
+html
+  head
+    title esprofiler result page
+    meta(charset="utf-8")
+
+    link(href="/bower_components/SyntaxHighlighter/styles/shCore.css",
+          rel="stylesheet")
+    link(href="/bower_components/SyntaxHighlighter/styles/shThemeDefault.css",
+          rel="stylesheet")
+    script(type="text/javascript",
+            src="/bower_components/SyntaxHighlighter/scripts/XRegExp.js")
+    script(type="text/javascript",
+            src="/bower_components/SyntaxHighlighter/scripts/shCore.js")
+    script(type="text/javascript",
+            src="/bower_components/SyntaxHighlighter/scripts/shBrushJScript.js")
+    != css('built-editor')
+    != js('built-editor')
+    != js('application')
+
+    script(type="text/javascript").
+      var html = !{JSON.stringify(html)}
+      var source = html.
+      var profile = !{JSON.stringify(profile)}
+      window.addEventListener('load', function(e) {
+        reporter.showSource(html.sources[0], profile)
+      });
+  body
+    div#editor

@@ -26,7 +26,8 @@
     "express": "*",
     "body-parser": "^1.3.0",
     "jsdom": "*",
-    "jade": "~1.3.0"
+    "jade": "~1.3.0",
+    "connect-assets": "*"
   },
   "homepage": "https://github.com/kumabook/esprofiler"
 }
