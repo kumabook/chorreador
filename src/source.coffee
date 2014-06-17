@@ -3,5 +3,9 @@ class Source
   constructor: (@path, @code, @html) ->
     @id = _id++
     @funcs = []
-
+  toJSON: () ->
+    id:    @id
+    path:  @path
+    code:  @code
+    funcs: @funcs
 module.exports = Source

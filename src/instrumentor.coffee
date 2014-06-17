@@ -77,7 +77,7 @@ class Instrumentor
           node.body.body = node.body.body.concat trace.toAST().body
           console.assert node.func == func
     }
-    source.code = escodegen.generate ast
+    escodegen.generate ast
   @instrumentBeforeReturnStatement: (node, parent, trace) ->
     traceNode = trace.toAST()
     switch parent.type

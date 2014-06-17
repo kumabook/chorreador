@@ -4,5 +4,7 @@ class HTML
     @id      = _id++
     @sources = []
     @code    = null
-
+  toJSON: () ->
+    id:      @id
+    sources: @sources
 module.exports = HTML

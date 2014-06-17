@@ -28,19 +28,41 @@ class Server
     @htmlList    = []
     @profileList = []
     @tracer      = new RemoteTracer()
+    @app.set 'views', path.join(__dirname, '../views')
+    @app.set 'view engine', 'jade'
 
     @app.use bodyParser
       limit: 1024 * 1024 * 500
+    @app.use require("connect-assets")()
+    @app.use '/bower_components',
+             express.static __dirname + '/../bower_components'
     callCreatePath = '/htmls/:hid/profiles/:pid/sources/:sid/' +
                'funcs/:fid/traces/:tid/calls/create'
     @app.get '/',                                    @handleTop
     @app.get  callCreatePath,                        @handleCallCreate
     @app.post '/htmls/:hid/profiles/:pid/summarize', @handleSummarize
     @app.get  /^\/instrumented\/(.*)?/,              @handleTarget
+    @app.get '/htmls',                               @handleHtmls
+    @app.get '/htmls/:hid/profiles',                 @handleProfiles
+    @app.get '/htmls/:hid/profiles/:pid',            @handleProfile
+#    @app.get '/htmls/:hid',                          @handleHtmls
   run: () ->
     @server = @app.listen @port, =>
       console.log "Listening on port #{@server.address().port}"
-
+  handleHtmls: (req, res) =>
+    console.log 'test'
+    res.render 'htmls', { title: 'HTML pages' }
+  handleProfiles: (req, res) =>
+    console.log 'handle profiles'
+    res.render 'profiles', { title: 'Express' }
+  handleProfile: (req, res) =>
+    console.log 'handle profile'
+    html    = @htmlList.filter((h) -> h.id == ~~req.params.hid)[0]
+    profile = @profileList.filter((p) -> p.id == ~~req.params.pid)[0]
+    res.render 'profile',
+      title: 'test'
+      html: html
+      profile: profile
   handleTop: (req, res) =>
     res.writeHead 200, {
       'Content-Type': mimeTypes['.txt']
@@ -151,4 +173,5 @@ class Server
           file = Instrumentor.instrumentFunctionTrace source, @tracer
       res.write(file, 'binary')
       res.end()
+
 module.exports = Server
