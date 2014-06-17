@@ -26,7 +26,7 @@ reporter.showSource = (source, profile) ->
     return
   reporter.source = source
   require ["orion/editor/edit"], (edit) ->
-    editorEle = document.getElementById('editor')
+    editorEle  = document.getElementById('editor')
     source     = source
     code       = source.code
     editorEle.innerHTML = '';
@@ -47,8 +47,12 @@ reporter.showSource = (source, profile) ->
 reporter.showProblems = (codeEditor, funcs, profile) ->
   calls = profile.calls
   problems = funcs.map (f) ->
-    num = calls.filter((c) -> c.func.id == f.id).length
-    description: "#{f.name}() is called #{num} times"
+    funcCalls = calls.filter((c) -> c.func.id == f.id)
+    num = funcCalls.length
+    maxDuration = Math.max.apply null, funcCalls.map (c) -> c.duration
+    desc        = "#{f.name}() is called #{num} times." +
+      "Max duration is #{maxDuration}"
+    description: desc
     line:        f.loc.start.line
     start:       1
     end:         1
