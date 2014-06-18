@@ -13,9 +13,11 @@ class RemoteTracer extends Tracer
       count: 0,
       traces: [],
       trace: (param) ->
+        arguments.callee.id = param.func_id
+        console.log(arguments.callee.caller.id)
         param.time   = Date.now()
         param.count  = esprofiler.count++
-        param.caller = arguments.callee.caller.name
+        param.caller = param.func_id#arguments.callee.caller
         @traces.push param
       summarize: ->
         xhr = new XMLHttpRequest()

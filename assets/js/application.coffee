@@ -20,41 +20,49 @@ reporter.showSourceList = (sources, profile) ->
     ids    = e.target.split '-'
     source = sources.filter((s) -> s.id == parseInt(ids[0]))[0]
     func   = source.funcs.filter((f) -> f.id == parseInt(ids[1]))[0]
-    reporter.showSource source, profile
-reporter.showSource = (source, profile) ->
-  if reporter.source == source
-    return
-  reporter.source = source
-  require ["orion/editor/edit"], (edit) ->
-    editorEle  = document.getElementById('editor')
-    source     = source
-    code       = source.code
-    editorEle.innerHTML = '';
-    codeEditor = new editor.edit(
-      contents: code
-      parent: editorEle
-      readonly: true
-      fullSelection: true
-      lang: 'js'
-      showFoldingRuler: true
-      showAnnotationRuler: true
-      showLinesRuler: true
-      showOverviewRuler: true
-      tabSize: 2
-      title: 'edit'
-    )
-    reporter.showProblems codeEditor, source.funcs, profile
-reporter.showProblems = (codeEditor, funcs, profile) ->
-  calls = profile.calls
+    reporter.showSource source, func, profile
+reporter.showSource = (source, func, profile) ->
+  if @source != source
+    @source = source
+    require ["orion/editor/edit"], (edit) =>
+      editorEle  = document.getElementById('editor')
+      source     = source
+      code       = source.code
+      editorEle.innerHTML = '';
+      @codeEditor = new editor.edit(
+        contents: code
+        parent: editorEle
+        readonly: true
+        fullSelection: true
+        lang: 'js'
+        showFoldingRuler: true
+        showAnnotationRuler: true
+        showLinesRuler: true
+        showOverviewRuler: true
+        tabSize: 2
+        title: 'edit'
+      )
+      @showProblems source.funcs, profile
+      if func != null
+        @codeEditor.onGotoLine func.loc.start.line - 1, 0, 0, () ->
+  else
+    if func != null
+        @codeEditor.onGotoLine func.loc.start.line - 1, 0, 0, () ->
+
+
+reporter.showProblems = (funcs, profile) ->
+  calls    = profile.calls
   problems = funcs.map (f) ->
-    funcCalls = calls.filter((c) -> c.func.id == f.id)
-    num = funcCalls.length
-    maxDuration = Math.max.apply null, funcCalls.map (c) -> c.duration
+    funcCalls   = calls.filter((c) -> c.func.id == f.id)
+    console.log(funcCalls);
+    num         = funcCalls.length
+    maxDuration = Math.max.apply null,
+                                 (funcCalls.map (c) -> c.duration).concat([0])
     desc        = "#{f.name}() is called #{num} times." +
-      "Max duration is #{maxDuration}"
+                    "Max duration is #{maxDuration}"
     description: desc
     line:        f.loc.start.line
     start:       1
     end:         1
     severity:    "warning"
-  codeEditor.showProblems problems
+  this.codeEditor.showProblems problems

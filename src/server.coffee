@@ -99,6 +99,7 @@ class Server
       source = html.sources.filter((s) -> s.id == ~~trace.source_id)[0]
       func   = source.funcs.filter((f) -> f.id == ~~trace.func_id)[0] if source?
       if func?
+        console.log trace.caller
         switch trace.position
           when 'start'
             call = new Call(func, trace.caller, trace.time)
