@@ -3,7 +3,8 @@ bodyParser   = require('body-parser')
 path         = require 'path'
 fs           = require 'fs'
 
-RemoteTracer = require './remote_tracer'
+
+FreqRemoteTracer = require './freq_remote_tracer'
 Instrumentor = require './instrumentor'
 HTML         = require './html'
 Source       = require './source'
@@ -27,7 +28,7 @@ class Server
     @app         = express()
     @htmlList    = []
     @profileList = []
-    @tracer      = new RemoteTracer()
+    @tracer      = new FreqRemoteTracer()
     @app.set 'views', path.join(__dirname, '../views')
     @app.set 'view engine', 'jade'
 
@@ -36,8 +37,7 @@ class Server
     @app.use require("connect-assets")()
     @app.use '/bower_components',
              express.static __dirname + '/../bower_components'
-    callCreatePath = '/htmls/:hid/profiles/:pid/sources/:sid/' +
-               'funcs/:fid/traces/:tid/calls/create'
+    callCreatePath = '/htmls/:hid/profiles/:pid/sources/:sid/funcs/:fid/traces/:tid/calls/create'
     @app.get '/',                                    @handleTop
     @app.get  callCreatePath,                        @handleCallCreate
     @app.post '/htmls/:hid/profiles/:pid/summarize', @handleSummarize
@@ -78,18 +78,7 @@ class Server
     func    = source.funcs.filter((f) -> f.id == ~~req.params.fid)[0] if source?
     trace   = func.traces.filter((t) -> t.id == ~~req.params.tid)[0] if trace?
     if func?
-      switch  trace.position
-        when 'start'
-          call = new Call(func, trace.caller, trace.time)
-          call.traces.push trace
-          profile.calls.push call
-        when 'end', 'return'
-          call = profile.latestUnfinishedCall func
-          if call?
-            call.traces.push trace
-            call.endTime = trace.time
-          else
-            console.log "warning: unexpected function trace #{func.name}"
+      console.log "#{source.path}: #{func.loc.start.line}"
     res.end()
   handleSummarize: (req, res) =>
     html    = @htmlList.filter((h) -> h.id == ~~req.params.hid)[0]
@@ -117,14 +106,23 @@ class Server
     for source in html.sources
       for func in source.funcs
         count = profile.calls.filter((c) -> c.func == func).length
-        if count > 0
-          console.log "#{source.path}: #{func.name} is called #{count} times."
+#        if count > 0
+#          console.log "#{source.path}: #{func.name} is called #{count} times."
     res.contentType('text/plain')
     res.writeHead 200
     res.write 'Summarize completed.\n'
     res.end()
     console.log "Summarize completed: total #{traces.length} traces " +
                 "and #{profile.calls.length} function calls."
+    num = traces.length - 1
+    console.log "Show last #{num} traces."
+    for i in [(traces.length - num - 1)..(traces.length - 1)]
+      trace  = traces[i]
+      source = html.sources.filter((s) -> s.id == ~~trace.source_id)[0]
+      func   = source.funcs.filter((f) -> f.id == ~~trace.func_id)[0] if source?
+      if func?
+        console.log "[#{i}] #{source.path} #{func.loc.start.line} #{func.name} #{trace.position} #{trace.loc.start.line}"
+
   handleTarget: (req, res) =>
     fileName = path.join process.cwd() + "/#{@instrumentedDir}/", req.params[0]
 #  console.log fileName
@@ -167,6 +165,7 @@ class Server
           profile = @profileList.filter((h) -> h.uri == referer)[0]
           if html?
             source = new Source(uri, code, html)
+            console.log "#{source.id} #{source.path}"
             html.sources[uri] = source
             html.sources.push source
 

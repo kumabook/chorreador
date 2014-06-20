@@ -46,7 +46,9 @@ class Instrumentor
     scriptEl.innerHTML = tracer.generateTraceDefinition html.id, profile.id
     doc.head.insertBefore scriptEl, doc.head.firstChild
 #    console.log doc.innerHTML
-    window.document.innerHTML
+    code = window.document.innerHTML
+    window.close()
+    return code
   @instrumentFunctionTraceDefinition: (source, tracer) ->
     source.code = tracer.generateTraceDefinition() + source.code
   @instrumentFunctionTrace: (source, tracer) ->
