@@ -1,0 +1,47 @@
+#!/usr/bin/env coffee
+fs         = require 'fs'
+path       = require 'path'
+chorreador = require '../'
+yargs      = require('yargs')
+
+argv = yargs.usage('Usage: command --port [num] --dir [string]').
+         demand(1).argv
+command = argv._[0]
+switch command
+  when 'server'
+    argv = yargs.usage('Usage: server --port NUM --dir DIR').
+             default('port', 3000).
+             default('dir', 'instrumented').
+             argv
+    server = new chorreador.Server(argv.port, argv.dir)
+    server.run()
+  when 'instrument'
+    usage = 'Usage: instrument FILE --include_def'
+    argv = yargs.usage(usage).
+                 demand(1).
+                 boolean(['include_def']).
+                 argv
+
+    fileName     = argv._[1]
+    Instrumentor = chorreador.Instrumentor
+    tracer       = new chorreador.ConsoleTracer()
+    ext          = path.extname fileName
+
+    fs.readFile fileName, (err, code) ->
+      switch ext
+        when '.js'
+          source = new chorreador.Source(fileName, code.toString())
+          code   = Instrumentor.instrumentFunctionTrace source,
+                                                        tracer
+          if argv.include_def
+            source.code = code
+            code        = Instrumentor.instrumentFunctionTraceDefinition source,
+                                                                         tracer
+          console.log code
+        when '.html'
+          page    = new chorreador.Page('', fileName, code.toString())
+          profile = new chorreador.Profile(page)
+          code    = Instrumentor.instrumentFunctionTraceDefinition2Page(page,
+                                                                        profile,
+                                                                        tracer)
+          console.log code
