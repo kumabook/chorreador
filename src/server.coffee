@@ -31,9 +31,11 @@ class Server
     @app.set 'views', path.join(__dirname, '../views')
     @app.set 'view engine', 'jade'
 
-    @app.use(bodyParser.urlencoded extended: true)
-    @app.use(bodyParser.json(),
-      limit: 1024 * 1024 * 500)
+    @app.use bodyParser.urlencoded
+      extended: true
+    @app.use bodyParser.json
+      limit: 1024 * 1024 * 500
+
     @app.use require("connect-assets")()
     @app.use '/bower_components',
              express.static __dirname + '/../bower_components'
