@@ -4,19 +4,19 @@ path       = require 'path'
 chorreador = require '../'
 yargs      = require('yargs')
 
-argv = yargs.usage('Usage: command --port [num] --dir [string]').
+argv = yargs.usage('Usage: chorreador server|instrument ...').
          demand(1).argv
 command = argv._[0]
 switch command
   when 'server'
-    argv = yargs.usage('Usage: server --port NUM --dir DIR').
+    argv = yargs.usage('Usage: chorreador server --port NUM --dir DIR').
              default('port', 3000).
              default('dir', 'instrumented').
              argv
     server = new chorreador.Server(argv.port, argv.dir)
     server.run()
   when 'instrument'
-    usage = 'Usage: instrument FILE --include_def'
+    usage = 'Usage: chorreador instrument FILE --include_def'
     argv = yargs.usage(usage).
                  demand(1).
                  boolean(['include_def']).
