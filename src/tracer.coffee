@@ -1,6 +1,6 @@
 fs = require 'fs'
 class Tracer
-  name: 'chorreador',
+  name: 'chorreador'
   generateTraceDefinition: (pageId, profileId) ->
     throw new Error 'not implemented'
   traceDefinition: (global) ->

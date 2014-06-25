@@ -12,9 +12,9 @@ class Trace
       range:    @range
       position: @position
     if @func?
-      json['func_id'] = @func.id
+      json['func_id']   = @func.id
       json['source_id'] = @func.source.id
-      json['page_id'] = @func.source.page.id if @func.source.page?
+      json['page_id']   = @func.source.page.id if @func.source.page?
     JSON.stringify(json)
 
 module.exports = Trace

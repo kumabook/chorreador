@@ -37,7 +37,6 @@ class Instrumentor
             if parent.value == node && parent.key.value?
               return parent.key.value
       return '[Anonymous]'
-#      throw new Error('unexpected FunctionExpression')
 
   @instrumentFunctionTraceDefinition2Page: (page, profile, tracer) ->
     window   = jsdom.jsdom(page.code).parentWindow
@@ -45,7 +44,6 @@ class Instrumentor
     scriptEl = doc.createElement("script")
     scriptEl.innerHTML = tracer.generateTraceDefinition page.id, profile.id
     doc.head.insertBefore scriptEl, doc.head.firstChild
-#    console.log doc.innerHTML
     window.document.innerHTML
   @instrumentFunctionTraceDefinition: (source, tracer) ->
     source.code = tracer.generateTraceDefinition() + source.code
@@ -83,7 +81,7 @@ class Instrumentor
     switch parent.type
       when S.BlockStatement
         index = parent.body.indexOf node
-        parent.body.splice index, 0, traceNode if  index != -1
+        parent.body.splice index, 0, traceNode if index != -1
       when S.SwitchCase
         parent.consequent.splice parent.consequent.length-1, 0, traceNode
       when S.IfStatement

@@ -11,16 +11,16 @@ Func         = require './func'
 Call         = require './call'
 Profile      = require './profile'
 
-mimeTypes   = {
-  ".html": "text/html",
-  ".css" : "text/css",
-  ".js"  : "application/javascript",
-  ".json": "application/json",
-  ".png" : "image/png",
-  ".jpg" : "image/jpeg",
-  ".gif" : "image/gif",
+mimeTypes   =
+  ".html": "text/html"
+  ".css" : "text/css"
+  ".js"  : "application/javascript"
+  ".json": "application/json"
+  ".png" : "image/png"
+  ".jpg" : "image/jpeg"
+  ".gif" : "image/gif"
   ".txt" : "text/plain"
-}
+
 
 class Server
   constructor: (@port, @instrumentedDir) ->
@@ -92,7 +92,6 @@ class Server
       source = page.sources.filter((s) -> s.id == ~~trace.source_id)[0]
       func   = source.funcs.filter((f) -> f.id == ~~trace.func_id)[0] if source?
       if func?
-        console.log trace.caller
         switch trace.position
           when 'start'
             call = new Call(func, trace.caller, trace.time)
@@ -121,7 +120,6 @@ class Server
                 "and #{profile.calls.length} function calls."
   handleTarget: (req, res) =>
     fileName = path.join process.cwd() + "/#{@instrumentedDir}/", req.params[0]
-#  console.log fileName
     if fs.existsSync(fileName) && fs.statSync(fileName).isDirectory()
       fileName += '/index.html'
     else if fs.existsSync fileName
