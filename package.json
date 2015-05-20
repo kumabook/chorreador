@@ -1,22 +1,22 @@
 {
-  "name": "chorreador",
-  "version": "0.0.1",
-  "description": "JavaScript based JavaScript profiler",
-  "main": "./index",
-  "bin":  "bin/chorreador",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+         "name": "chorreador",
+      "version": "0.0.1",
+  "description": "JavaScript based dynamic analyzer",
+         "main": "./index",
+          "bin": "bin/chorreador",
+      "scripts": {
+          "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
-    "type": "git",
-    "url": "git@github.com:kumabook/chorreador.git"
+        "type": "git",
+         "url": "git@github.com:kumabook/chorreador.git"
   },
   "keywords": [
     "javascript"
   ],
-  "author": "kumabook",
+   "author": "kumabook",
   "license": "BSD-2-Clause",
-  "bugs": {
+     "bugs": {
     "url": "https://github.com/kumabook/chorreador/issues"
   },
   "dependencies": {
