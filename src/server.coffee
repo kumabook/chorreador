@@ -131,15 +131,13 @@ class Server
 
   renderNotFound: (req, res) =>
     res.contentType('text/plain')
-    res.writeHead 404
     res.write '404 Not Found\n'
     res.end()
+    res.writeHead 404
 
   renderStaticFile: (req, res, fileName) =>
     ext  = path.extname fileName
     res.contentType(mimeTypes[ext])
-    res.writeHead 200
-
     fs.readFile fileName, 'binary', (error, file) =>
       uri = req.protocol + '://' + req.get('host') + req.url
       referer = req.headers.referer
@@ -163,6 +161,7 @@ class Server
             page.sources.push source
 
           file = Instrumentor.instrumentFunctionTrace source, @tracer
+      res.writeHead 200
       res.write(file, 'binary')
       res.end()
 
