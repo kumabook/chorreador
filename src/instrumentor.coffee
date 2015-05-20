@@ -39,12 +39,12 @@ class Instrumentor
       return '[Anonymous]'
 
   @instrumentFunctionTraceDefinition2Page: (page, profile, tracer) ->
-    window   = jsdom.jsdom(page.code).parentWindow
-    doc      = window.document
-    scriptEl = doc.createElement("script")
+    doc                = jsdom.jsdom(page.code)
+    window             = doc.defaultView
+    scriptEl           = window.document.createElement("script")
     scriptEl.innerHTML = tracer.generateTraceDefinition page.id, profile.id
-    doc.head.insertBefore scriptEl, doc.head.firstChild
-    window.document.innerHTML
+    window.document.head.insertBefore scriptEl, window.document.head.firstChild
+    doc.documentElement.outerHTML
   @instrumentFunctionTraceDefinition: (source, tracer) ->
     source.code = tracer.generateTraceDefinition() + source.code
   @instrumentFunctionTrace: (source, tracer) ->
@@ -107,6 +107,11 @@ class Instrumentor
           type: S.BlockStatement,
           body: [traceNode, node]
       }
+      when S.ForInStatement
+        parent.body = {
+          type: S.BlockStatement,
+          body: [traceNode, node]
+      }
       else
-        throw new Error('unexpected return statement')
+        throw new Error('unexpected return statement:' + parent.type)
 module.exports = Instrumentor
