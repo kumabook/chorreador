@@ -12,11 +12,14 @@ class RemoteTracer extends Tracer
       profileId: profileId
       count:     0
       traces:    []
-      trace: (param) ->
-        param.time   = Date.now()
-        param.count  = chorreador.count++
-        param.caller = param.func_id
+      trace: (param, args, return_value) ->
+        param.time         = Date.now()
+        param.count        = chorreador.count++
+        param.caller       = param.func_id
+        param.args         = Array.prototype.slice.call(args)
+        param.return_value = return_value
         @traces.push param
+        return_value
       summarize: ->
         xhr = new XMLHttpRequest()
         xhr.onreadystatechange = ->
@@ -26,6 +29,26 @@ class RemoteTracer extends Tracer
           "/pages/#{pageId}/profiles/#{profileId}/summarize"
         xhr.open 'POST', url, true
         xhr.setRequestHeader 'Content-type', 'application/json; charset=utf-8'
-        xhr.send JSON.stringify @traces
+        cache = []
+        json_str = JSON.stringify @traces, (key, value) ->
+          if typeof value == 'object'
+            str = Object.prototype.toString.call(value)
+            switch str
+              when '[object Object]'
+                return value
+              when '[object Array]'
+                return value
+              when '[object Number]'
+                return value
+              when '[object String]'
+                return value
+              when '[object Event]'
+                return 'Event'
+              when '[object global]'
+                return 'global'
+              else
+                return
+          return value
+        xhr.send json_str
     global.chorreador = chorreador
 module.exports = RemoteTracer

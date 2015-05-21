@@ -75,7 +75,11 @@ class Server
     if func?
       switch  trace.position
         when 'start'
-          call = new Call(func, trace.caller, trace.time)
+          call = new Call(func,
+                          trace.caller,
+                          trace.time,
+                          trace.args,
+                          trace.return_value)
           call.traces.push trace
           profile.calls.push call
         when 'end', 'return'
@@ -93,10 +97,11 @@ class Server
     for trace in traces
       source = page.sources.filter((s) -> s.id == ~~trace.source_id)[0]
       func   = source.funcs.filter((f) -> f.id == ~~trace.func_id)[0] if source?
+      pos    = trace.position
       if func?
-        switch trace.position
+        switch pos
           when 'start'
-            call = new Call(func, trace.caller, trace.time)
+            call = new Call(func, trace.caller, trace.time, trace.args)
             call.traces.push trace
             profile.calls.push call
           when 'end', 'return'
@@ -104,6 +109,7 @@ class Server
             if call?
               call.traces.push trace
               call.endTime = trace.time
+              call.return_value = trace.return_value if pos == 'return'
             else
               console.log "warning: unexpected function trace " +
                 "#{source.path} #{func.loc.start.line} " +
@@ -149,9 +155,9 @@ class Server
             @pageList.push page
           profile   = new Profile(page)
           @profileList.push profile
-          file      = Instrumentor.instrumentFunctionTraceDefinition2Page(page,
-                                                                profile,
-                                                                @tracer)
+          file = Instrumentor.instrumentFunctionTraceDefinition2Page(page,
+                                                                     profile,
+                                                                     @tracer)
         when ".js"
           page    = @pageList.filter((h) -> h.uri == referer)[0]
           profile = @profileList.filter((h) -> h.uri == referer)[0]

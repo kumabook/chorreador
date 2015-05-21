@@ -77,41 +77,26 @@ class Instrumentor
     }
     escodegen.generate ast
   @instrumentBeforeReturnStatement: (node, parent, trace) ->
-    traceNode = trace.toAST()
+    traceNode = trace.toTraceReturnAST node
     switch parent.type
       when S.BlockStatement
         index = parent.body.indexOf node
-        parent.body.splice index, 0, traceNode if index != -1
+        parent.body[index] = traceNode if index != -1
       when S.SwitchCase
-        parent.consequent.splice parent.consequent.length-1, 0, traceNode
+        parent.consequent[parent.consequent.length-1] = traceNode
       when S.IfStatement
         if parent.consequent == node
-          parent.consequent = {
-            type: S.BlockStatement,
-            body: [traceNode, node]
-          }
+          parent.consequent = traceNode
         else if parent.alternate == node
-          parent.alternate = {
-            type: S.BlockStatement,
-            body: [traceNode, node]
-          }
+          parent.alternate = traceNode
         else
           throw new Error('unexpected return statement')
       when S.WhileStatement
-        parent.body = {
-          type: S.BlockStatement,
-          body: [traceNode, node]
-      }
+        parent.body = traceNode
       when S.ForStatement
-        parent.body = {
-          type: S.BlockStatement,
-          body: [traceNode, node]
-      }
+        parent.body = traceNode
       when S.ForInStatement
-        parent.body = {
-          type: S.BlockStatement,
-          body: [traceNode, node]
-      }
+        parent.body = traceNode
       else
         throw new Error('unexpected return statement:' + parent.type)
 module.exports = Instrumentor
