@@ -37,6 +37,8 @@ class RemoteTracer extends Tracer
             str = Object.prototype.toString.call(value)
             switch str
               when '[object Object]'
+                return null if cache.indexOf(value) != -1
+                cache.push value
                 return value
               when '[object Array]'
                 return value
