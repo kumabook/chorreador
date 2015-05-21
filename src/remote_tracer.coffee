@@ -5,8 +5,10 @@ class RemoteTracer extends Tracer
   generateTraceDefinition: (pageId, profileId) ->
     "\n(#{@traceDefinition.toString()})(window, #{pageId}, #{profileId})\n"
   traceDefinition: (global, pageId, profileId) ->
-    window.onload = (e) ->
-      chorreador.summarize()
+    window.addEventListener "keydown", (e) ->
+      if e.keyCode == 83
+        alert('summarize')
+        chorreador.summarize()
     chorreador =
       pageId:    pageId
       profileId: profileId
