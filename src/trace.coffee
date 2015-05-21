@@ -35,17 +35,8 @@ class Trace
           name: 'trace'
       arguments: [
         (esprima.parse "param = #{@toParam()}").body[0].expression.right
-        type: 'CallExpression'
-        callee:
-          type: 'MemberExpression'
-          computed: false
-          object:
-            type: 'Identifier'
-            name: 'arguments'
-          property:
-            type: 'Identifier'
-            name: 'toString'
-        arguments: []
+        type: 'Identifier'
+        name: 'arguments'
       ]
 
 module.exports = Trace
