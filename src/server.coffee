@@ -148,18 +148,18 @@ class Server
       referer = req.headers.referer
       switch ext
         when ".html"
-          page = @pageList.filter((h) -> h.uri == uri)[0]
-          if !page?
-            page = new Page(uri, fileName, file.toString())
-            @pageList.push page
-          profile   = new Profile(page)
+          page    = new Page(uri, fileName, file.toString())
+          profile = new Profile(page)
+          @pageList.push page
           @profileList.push profile
           file = Instrumentor.instrumentFunctionTraceDefinition2Page(page,
                                                                      profile,
                                                                      @tracer)
         when ".js"
-          page    = @pageList.filter((h) -> h.uri == referer)[0]
-          profile = @profileList.filter((h) -> h.uri == referer)[0]
+          pages    = @pageList.filter((h) -> h.uri == referer)
+          profiles = @profileList.filter((h) -> h.uri == referer)
+          page     = pages[pages.length - 1]
+          profile  = profiles[profiles.length - 1]
           if page?
             source = new Source(uri, file.toString(), page)
             page.sources[uri] = source
