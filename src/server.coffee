@@ -45,17 +45,18 @@ class Server
     @app.get  callCreatePath,                         @handleCallCreate
     @app.post '/pages/:pid/profiles/:prof_id/report', @handleReport
     @app.get  /^\/instrumented\/(.*)?/,               @handleTarget
-    @app.get '/pages/:pid/profiles/:prof_id',         @handleProfile
+    @app.get '/profiles',                             @handleProfiles
+    @app.get '/profiles/:prof_id',                    @handleProfile
 
   run: () ->
     @server = @app.listen @port, =>
       console.log "Listening on port #{@server.address().port}"
+  handleProfiles: (req, res) =>
+    res.render 'profiles',
+      profiles: @profileList
   handleProfile: (req, res) =>
-    page    = @pageList.filter((h) -> h.id == ~~req.params.pid)[0]
     profile = @profileList.filter((p) -> p.id == ~~req.params.prof_id)[0]
     res.render 'profile',
-      title: 'test'
-      page: page
       profile: profile
   handleTop: (req, res) =>
     res.writeHead 200, {

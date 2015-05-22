@@ -9,7 +9,7 @@ reporter.showSourceList = (sources, profile) ->
     count: source.funcs.length
     nodes: source.funcs.map (func) ->
       id: "#{source.id}-#{func.id}"
-      text: "line #{func.loc.start.line}: #{func.name}"
+      text: "#{func.id} line #{func.loc.start.line}: #{func.name}"
       img: 'icon-page'
     style: 'text-overflow: ellipsis'
   $ ->

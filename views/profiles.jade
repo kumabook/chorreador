@@ -1,0 +1,30 @@
+doctype html
+html
+  head
+    title Profiles - chorreador -
+    meta(charset="utf-8")
+    link(href="/bower_components/pure/pure-min.css", rel="stylesheet")
+  body
+    div.pure-g
+      div.pure-u-1-24
+      div.pure-u-2-3
+        h1 Profiles
+        table.pure-table
+          thead
+            tr
+              th ID
+              th URL
+              th Source count
+              th Func count
+              th Call count
+              th
+          tbody
+            each profile, index in profiles
+              tr
+                td= profile.id
+                td= profile.page.fileName
+                td= profile.page.sources.length
+                td= profile.page.funcCount()
+                td= profile.calls.length
+                td
+                  a(href="/profiles/" + profile.id) View
