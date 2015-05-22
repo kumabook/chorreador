@@ -41,17 +41,16 @@ class Server
              express.static __dirname + '/../bower_components'
     callCreatePath = '/pages/:pid/profiles/:prof_id/sources/:sid/' +
                'funcs/:fid/traces/:tid/calls/create'
-    @app.get '/',                                        @handleTop
-    @app.get  callCreatePath,                            @handleCallCreate
-    @app.post '/pages/:pid/profiles/:prof_id/summarize', @handleSummarize
-    @app.get  /^\/instrumented\/(.*)?/,                  @handleTarget
-    @app.get '/pages/:pid/profiles/:prof_id',            @handleProfile
+    @app.get '/',                                     @handleTop
+    @app.get  callCreatePath,                         @handleCallCreate
+    @app.post '/pages/:pid/profiles/:prof_id/report', @handleReport
+    @app.get  /^\/instrumented\/(.*)?/,               @handleTarget
+    @app.get '/pages/:pid/profiles/:prof_id',         @handleProfile
 
   run: () ->
     @server = @app.listen @port, =>
       console.log "Listening on port #{@server.address().port}"
   handleProfile: (req, res) =>
-    console.log 'handle profile'
     page    = @pageList.filter((h) -> h.id == ~~req.params.pid)[0]
     profile = @profileList.filter((p) -> p.id == ~~req.params.prof_id)[0]
     res.render 'profile',
@@ -90,7 +89,7 @@ class Server
           else
             console.log "warning: unexpected function trace #{func.name}"
     res.end()
-  handleSummarize: (req, res) =>
+  handleReport: (req, res) =>
     page    = @pageList.filter((h) -> h.id == ~~req.params.pid)[0]
     profile = @profileList.filter((p) -> p.id == ~~req.params.prof_id)[0]
     traces  = req.body
@@ -124,8 +123,8 @@ class Server
     res.writeHead 200
     res.write 'Summarize completed.\n'
     res.end()
-    console.log "Summarize completed: total #{traces.length} traces " +
-                "and #{profile.calls.length} function calls."
+    console.log "Add #{traces.length} traces to page #{page.id}. " +
+                "Total #{profile.calls.length} function calls are in there."
   handleTarget: (req, res) =>
     fileName = path.join process.cwd() + "/#{@instrumentedDir}/", req.params[0]
     if fs.existsSync(fileName) && fs.statSync(fileName).isDirectory()
