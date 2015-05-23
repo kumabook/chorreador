@@ -36,7 +36,13 @@ class Server
     @app.use bodyParser.json
       limit: 1024 * 1024 * 500
 
-    @app.use require("connect-assets")()
+    @app.use require("connect-assets")(
+      paths: [
+        'assets',
+        'assets/js',
+        'assets/css',
+        'bower_components']
+    )
     @app.use '/bower_components',
              express.static __dirname + '/../bower_components'
     callCreatePath = '/pages/:pid/profiles/:prof_id/sources/:sid/' +
