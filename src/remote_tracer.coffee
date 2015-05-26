@@ -98,7 +98,7 @@ class RemoteTracer extends Tracer
             console.log 'Successfully report traces'
           @updateRecButton()
         url = "#{window.location.protocol}//#{window.location.host}" +
-          "/pages/#{pageId}/profiles/#{profileId}/report"
+          "/profiles/#{profileId}/report"
         xhr.open 'POST', url, true
         xhr.setRequestHeader 'Content-type', 'application/json; charset=utf-8'
         traces = @traces.splice 0, @traceNumPerReport

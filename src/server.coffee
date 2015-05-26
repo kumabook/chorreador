@@ -45,18 +45,42 @@ class Server
     )
     @app.use '/bower_components',
              express.static __dirname + '/../bower_components'
-    callCreatePath = '/pages/:pid/profiles/:prof_id/sources/:sid/' +
-               'funcs/:fid/traces/:tid/calls/create'
-    @app.get '/',                                     @handleTop
-    @app.get  callCreatePath,                         @handleCallCreate
-    @app.post '/pages/:pid/profiles/:prof_id/report', @handleReport
-    @app.get  /^\/instrumented\/(.*)?/,               @handleTarget
-    @app.get '/profiles',                             @handleProfiles
-    @app.get '/profiles/:prof_id',                    @handleProfile
+    @app.get '/',                          @handleTop
+    @app.get '/preference',                @handlePreference
+
+    @app.get  /^\/instrumented\/(.*)?/,    @handleTarget
+
+    @app.get '/pages',                     @handleGetPages
+    @app.get '/pages/:pid',                @handleGetPage
+    @app.get '/sources/:src_id',           @handleGetSource
+
+    @app.get '/profiles',                  @handleProfiles
+    @app.get '/profiles/:prof_id',         @handleProfile
+    @app.get '/profiles/:prof_id/calls',   @handleCalls
+
+    @app.post '/profiles/:prof_id',        @handleUpdateProfile
+    @app.post '/profiles/:prof_id/report', @handleReport
 
   run: () ->
     @server = @app.listen @port, =>
       console.log "Listening on port #{@server.address().port}"
+  handleTop: (req, res) =>
+    res.writeHead 200, {
+      'Content-Type': mimeTypes['.txt']
+    }
+    res.send('This is chorreador project.')
+  handlePreference: (req, res) ->
+    res.render 'preference',
+      preference:  preference
+  handleGetPages: =>
+  handleGetPage: =>
+  handleGetSource: =>
+  handleUpdateProfile: =>
+  handleGetSource: (req, res) =>
+  handleGetPage: (req, res) =>
+    page    = @pageList.filter((h) -> h.id == ~~req.params.pid)[0]
+    @renderJSON req, res, page
+  handleGetCalls: (req, res) =>
   handleProfiles: (req, res) =>
     res.render 'profiles',
       profiles: @profileList
@@ -64,41 +88,12 @@ class Server
     profile = @profileList.filter((p) -> p.id == ~~req.params.prof_id)[0]
     res.render 'profile',
       profile: profile
-  handleTop: (req, res) =>
-    res.writeHead 200, {
-      'Content-Type': mimeTypes['.txt']
-    }
-    res.send('This is chorreador project.')
-  handleCallCreate: (req, res) =>
-    res.writeHead 200, {
-      'Content-Type': mimeTypes['.txt']
-    }
-    page    = @pageList.filter((h) -> h.id == ~~req.params.pid)[0]
+  handleCalls: (req, res) =>
     profile = @profileList.filter((p) -> p.id == ~~req.params.prof_id)[0]
-    source  = page.sources.filter((s) -> s.id == ~~req.params.sid)[0] if html?
-    func    = source.funcs.filter((f) -> f.id == ~~req.params.fid)[0] if source?
-    trace   = func.traces.filter((t) -> t.id == ~~req.params.tid)[0] if trace?
-    if func?
-      switch  trace.position
-        when 'start'
-          call = new Call(func,
-                          trace.caller,
-                          trace.time,
-                          trace.args,
-                          trace.return_value)
-          call.traces.push trace
-          profile.calls.push call
-        when 'end', 'return'
-          call = profile.latestUnfinishedCall func
-          if call?
-            call.traces.push trace
-            call.endTime = trace.time
-          else
-            console.log "warning: unexpected function trace #{func.name}"
-    res.end()
+    @renderJSON req, res, profile.calls
   handleReport: (req, res) =>
-    page    = @pageList.filter((h) -> h.id == ~~req.params.pid)[0]
     profile = @profileList.filter((p) -> p.id == ~~req.params.prof_id)[0]
+    page    = profile.page
     traces  = req.body
     for trace in traces
       source = page.sources.filter((s) -> s.id == ~~trace.source_id)[0]
@@ -124,8 +119,8 @@ class Server
     for source in page.sources
       for func in source.funcs
         count = profile.calls.filter((c) -> c.func == func).length
-        if count > 0
-          console.log "#{source.path}: #{func.name} is called #{count} times."
+#        if count > 0
+#          console.log "#{source.path}: #{func.name} is called #{count} times."
     res.contentType('text/plain')
     res.writeHead 200
     res.write 'Summarize completed.\n'
@@ -146,6 +141,12 @@ class Server
     res.write '404 Not Found\n'
     res.end()
     res.writeHead 404
+
+  renderJSON: (req, res, obj) =>
+    res.contentType('application/json')
+    res.writeHead 200
+    res.write JSON.stringify(obj)
+    res.end()
 
   renderStaticFile: (req, res, fileName) =>
     ext  = path.extname fileName

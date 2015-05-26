@@ -8,9 +8,11 @@ class ConsoleTracer extends Tracer
     chorreador =
       count: 0,
       trace: (param) ->
-        param.time   = Date.now()
-        param.count  = chorreador.count++
-        param.caller = arguments.callee.caller.name
+        param.time         = Date.now()
+        param.count        = chorreador.count++
+        param.caller       = arguments.callee.caller.name
+        param.args         = arguments.toString()
+        param.return_value = 
         console.log param
     global.chorreador = chorreador
 module.exports = ConsoleTracer

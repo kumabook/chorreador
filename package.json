@@ -32,5 +32,11 @@
     "stylus": "^0.51.1",
     "yargs": "^1.2.6"
   },
-  "homepage": "https://github.com/kumabook/chorreador"
+  "homepage": "https://github.com/kumabook/chorreador",
+  "devDependencies": {
+    "coffee-loader": "^0.7.2",
+    "expose-loader": "^0.7.0",
+    "gulp": "^3.8.11",
+    "gulp-webpack": "^1.4.0"
+  }
 }
