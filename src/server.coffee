@@ -56,7 +56,8 @@ class Server
 
     @app.get '/profiles',                  @handleProfiles
     @app.get '/profiles/:prof_id',         @handleProfile
-    @app.get '/profiles/:prof_id/calls',   @handleCalls
+    @app.get '/profiles/:prof_id/calls',   @handleGetCalls
+    @app.get '/calls/:c_id:',              @handleGetCall
 
     @app.post '/profiles/:prof_id',        @handleUpdateProfile
     @app.post '/profiles/:prof_id/report', @handleReport
@@ -80,7 +81,12 @@ class Server
   handleGetPage: (req, res) =>
     page    = @pageList.filter((h) -> h.id == ~~req.params.pid)[0]
     @renderJSON req, res, page
+  handleGetCall: (req, res) =>
+    call = Call.instances[~~req.params.cid]
+    @renderJSON req, res, call
   handleGetCalls: (req, res) =>
+    profile = @profileList.filter((p) -> p.id == ~~req.params.prof_id)[0]
+    @renderJSON req, res, profile.calls
   handleProfiles: (req, res) =>
     res.render 'profiles',
       profiles: @profileList
@@ -88,9 +94,6 @@ class Server
     profile = @profileList.filter((p) -> p.id == ~~req.params.prof_id)[0]
     res.render 'profile',
       profile: profile
-  handleCalls: (req, res) =>
-    profile = @profileList.filter((p) -> p.id == ~~req.params.prof_id)[0]
-    @renderJSON req, res, profile.calls
   handleReport: (req, res) =>
     profile = @profileList.filter((p) -> p.id == ~~req.params.prof_id)[0]
     page    = profile.page
