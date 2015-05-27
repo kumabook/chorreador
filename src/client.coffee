@@ -1,8 +1,11 @@
 Editor      = require './editor-view'
 Page        = require './page'
 Profile     = require './profile'
+ProfileList = require './components/profile-list.cjsx'
 
 chorreador = {}
+chorreador.run = (profiles) ->
+  ProfileList.run(profiles)
 chorreador.showProfileView = (profileId, pageId) ->
   pstyle  = 'border: 1px solid #dfdfdf; padding: 5px;'
   $('#reporter').w2layout
