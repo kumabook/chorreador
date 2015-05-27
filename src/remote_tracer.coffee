@@ -64,11 +64,11 @@ class RemoteTracer extends Tracer
         cache = []
         JSON.stringify traces, (key, value) ->
           if typeof value == 'object'
+            return null if cache.indexOf(value) != -1
+            cache.push value
             str = Object.prototype.toString.call(value)
             switch str
               when '[object Object]'
-                return null if cache.indexOf(value) != -1
-                cache.push value
                 return value
               when '[object Array]'
                 return value
