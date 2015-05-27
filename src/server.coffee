@@ -169,7 +169,8 @@ class Server
           page     = pages[pages.length - 1]
           profile  = profiles[profiles.length - 1]
           if page?
-            source = new Source(uri, file.toString(), page)
+            beautify = require('js-beautify').js_beautify
+            source = new Source(uri, beautify(file), page)
             page.sources[uri] = source
             page.sources.push source
 
