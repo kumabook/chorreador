@@ -10,11 +10,12 @@ module.exports =
   resolve:
     root: [path.join(__dirname, "bower_components")]
     moduleDirectories: ["bower_components"]
-    extensions: ["", ".js", ".coffee", ".webpack.js", ".web.js"]
+    extensions: ["", ".js", ".coffee", "cjsx"]
   module:
     loaders: [
       { test: /client.coffee$/, loader: 'expose?chorreador'},
-      { test: /.coffee$/,       loader: "coffee-loader"}
+      { test: /.cjsx$/,         loaders: ['coffee-loader', 'cjsx-loader']},
+      { test: /.coffee$/,       loader: 'coffee-loader'}
     ]
 
   plugins: [
