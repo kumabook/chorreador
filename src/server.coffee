@@ -1,7 +1,9 @@
 express      = require 'express'
-bodyParser   = require('body-parser')
+bodyParser   = require 'body-parser'
 path         = require 'path'
 fs           = require 'fs'
+serveIndex   = require 'serve-index'
+redirect     = require 'express-redirect'
 
 RemoteTracer = require './remote_tracer'
 Instrumentor = require './instrumentor'
@@ -28,6 +30,7 @@ class Server
     @pageList    = []
     @profileList = []
     @tracer      = new RemoteTracer()
+    redirect(@app)
     @app.set 'views', path.join(__dirname, '../views')
     @app.set 'view engine', 'jade'
 
@@ -45,11 +48,12 @@ class Server
     )
     @app.use '/bower_components',
              express.static __dirname + '/../bower_components'
-    @app.get '/',                          @handleTop
+
+    @app.redirect '/', 'instrumented'
+    @app.get /^\/instrumented\/(.+)/,      @handleTarget
+    @app.use '/instrumented', serveIndex  'instrumented', {'icons': true}
+
     @app.get '/preference',                @handlePreference
-
-    @app.get  /^\/instrumented\/(.*)?/,    @handleTarget
-
     @app.get '/pages',                     @handleGetPages
     @app.get '/pages/:pid',                @handleGetPage
     @app.get '/sources/:src_id',           @handleGetSource
@@ -65,11 +69,6 @@ class Server
   run: () ->
     @server = @app.listen @port, =>
       console.log "Listening on port #{@server.address().port}"
-  handleTop: (req, res) =>
-    res.writeHead 200, {
-      'Content-Type': mimeTypes['.txt']
-    }
-    res.send('This is chorreador project.')
   handlePreference: (req, res) ->
     res.render 'preference',
       preference:  preference
