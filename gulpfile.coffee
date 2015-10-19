@@ -14,8 +14,10 @@ gulp.task 'build', ->
 
 gulp.task 'default', ['build', 'webpack']
 
-gulp.task 'watch', ->
+gulp.task 'watch:srcs', ->
   gulp.watch srcs, ['default']
+
+gulp.task 'watch', ['webpack', 'watch:srcs']
 
 
 gulp.task 'webpack', ->
