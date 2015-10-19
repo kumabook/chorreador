@@ -1,8 +1,11 @@
-React = require 'react'
+React  = require 'react'
+Router = require 'react-router'
+Link   = Router.Link
 
 ProfileList = React.createClass
   render: ->
     trs = this.props.profiles.map (profile) ->
+      to = "/profiles/#{profile.id}"
       (
         <tr>
           <td>{profile.id}</td>
@@ -10,7 +13,7 @@ ProfileList = React.createClass
           <td>{profile.sourceCount}</td>
           <td>{profile.funcCount}</td>
           <td>{profile.callCount}</td>
-          <td><a href={"/profiles/" + profile.id}>View</a></td>
+            <td><Link to={to}>View</Link></td>
         </tr>
       )
     return (
@@ -34,6 +37,8 @@ ProfileList = React.createClass
         </div>
       </div>
     )
+  componentDidMount: ->
+
 
 ProfileList.run = (profiles) ->
   React.render(

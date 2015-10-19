@@ -3,7 +3,7 @@ path    = require "path"
 
 module.exports =
   watch: true
-  entry: "./src/client.coffee"
+  entry: "./src/client.cjsx"
   output:
     filename: "application.js"
 
@@ -14,7 +14,7 @@ module.exports =
   module:
     loaders: [
       { test: /\.js?$/,         loader: 'babel-loader', exclude: 'node_modules' }
-      { test: /client.coffee$/, loader: 'expose?chorreador'},
+      { test: /client.cjsx$/,   loader: 'expose?chorreador'},
       { test: /.cjsx$/,         loaders: ['coffee-loader', 'cjsx-loader']},
       { test: /.coffee$/,       loader: 'coffee-loader'}
     ]
