@@ -13,6 +13,7 @@ module.exports =
     extensions: ["", ".js", ".coffee", "cjsx"]
   module:
     loaders: [
+      { test: /\.js?$/,         loader: 'babel-loader', exclude: 'node_modules' }
       { test: /client.coffee$/, loader: 'expose?chorreador'},
       { test: /.cjsx$/,         loaders: ['coffee-loader', 'cjsx-loader']},
       { test: /.coffee$/,       loader: 'coffee-loader'}
