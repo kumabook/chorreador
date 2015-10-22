@@ -1,0 +1,35 @@
+doctype html
+html
+  head
+    include ./includes/head.jade
+    title chorreador target page
+    script(type="text/javascript").
+      window.addEventListener('load', function(e) {
+      })
+  body
+    include ./includes/navbar.jade
+    .pure-g
+      .pure-u-1-24
+      .pure-u-2-3
+        h1 Target files in !{directory}
+        table.pure-table
+          thead
+            tr
+              th path
+              th
+              th
+          tbody
+          - fileList.forEach(function(file) {
+          - var profile = profileList.filter( p => file.name === p.fileName)
+            tr
+              td !{file.name}
+              td
+                a(href= directory + '/' + file.name) start
+              td
+                - if (profile.length > 0) {
+                  - var id = profile[0].id;
+                  a(href= '/profiles/' + id) profile
+                - } else {
+                  a(href= '/profiles?name=') results
+                - }
+          - })

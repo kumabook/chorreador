@@ -1,0 +1,18 @@
+doctype html
+html
+  head
+    include ./includes/head.jade
+    title Preference
+  body
+    include ./includes/navbar.jade
+    .pure-g
+      .pure-u-1-24
+      .pure-u-2-3
+        h1 Preference
+        form.pure-form(action='/preference', method='post', name='preference')
+          fieldset
+            label(for='remember')
+              input#remember(type='checkbox', name='recOnStart', value='true',
+                          checked=preference.recOnStart ? 'checked' : undefined)
+              |   Record on Start
+          button.pure-button.pure-button-primary(type='submit') Submit

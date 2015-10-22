@@ -56,7 +56,10 @@ class Server {
 
     this.app.redirect('/', 'instrumented');
     this.app.get(/^\/instrumented\/(.+)/,      this.handleTarget.bind(this));
-    this.app.use('/instrumented', serveIndex('instrumented', {'icons': true}));
+    this.app.use('/instrumented', serveIndex('instrumented', {
+      icons: true,
+      template: this.handleServeIndex.bind(this)
+    }));
 
     this.app.get('/preference',                this.handlePreference.bind(this));
     this.app.get('/pages',                     this.handleGetPages.bind(this));
@@ -75,6 +78,15 @@ class Server {
     this.server = this.app.listen(this.port, () => {
       console.log('Listening on port ' + this.server.address().port);
     });
+  }
+  handleServeIndex(locals, callback) {
+    var jade = require('jade');
+    var templateFile = path.join(__dirname, '../views/index.jade');
+    var fn = jade.compileFile(templateFile, {});
+    locals.profileList = this.profileList;
+    locals.fileList    = locals.fileList.filter(
+      f => path.extname(f.name) === '.html');
+    callback(null, fn(locals));
   }
   handlePreference (req, res) {
     res.render('preference', {
@@ -195,7 +207,8 @@ class Server {
         this.profileList.push(profile);
         file = Instrumentor.instrumentFunctionTraceDefinition2Page(page,
                                                                    profile,
-                                                                   this.tracer);
+                                                                   this.tracer,
+                                                                   preference);
         break;
       case ".js":
         var pages    = this.pageList.filter( h => h.uri == referer);
