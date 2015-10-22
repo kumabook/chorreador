@@ -2,7 +2,7 @@ var fs     = require('fs'),
     Tracer = require('./tracer');
 class ConsoleTracer extends Tracer {
   get name() { return  'chorreador'; }
-  generateTraceDefinition () {
+  generateTraceDefinition() {
     return "\n(#{@traceDefinition.toString()})(global)\n";
   }
   traceDefinition(global) {
