@@ -1,6 +1,5 @@
 gulp          = require 'gulp'
-webpack       = require 'gulp-webpack'
-watchify      = require 'watchify'
+webpack       = require 'webpack-stream'
 webpackConfig = require './webpack.config'
 babel         = require 'gulp-babel'
 launcher      = require 'browser-launcher'
@@ -14,10 +13,10 @@ gulp.task 'build', ->
 
 gulp.task 'default', ['build', 'webpack']
 
-gulp.task 'watch:srcs', ->
+gulp.task 'watch:server', ->
   gulp.watch srcs, ['default']
 
-gulp.task 'watch', ['webpack', 'watch:srcs']
+gulp.task 'watch', ['build', 'webpack', 'watch:server']
 
 
 gulp.task 'webpack', ->

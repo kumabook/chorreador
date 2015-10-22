@@ -1,4 +1,4 @@
-webpack = require("gulp-webpack").webpack
+webpack = require("webpack-stream").webpack
 path    = require "path"
 
 module.exports =
