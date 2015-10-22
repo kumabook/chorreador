@@ -2,15 +2,15 @@ var fs     = require('fs'),
     Tracer = require('./tracer');
 class RemoteTracer extends Tracer {
   get name() { return  'chorreador'; }
-  generateTraceDefinition(pageId, profileId) {
+  generateTraceDefinition(pageId, profileId, recOnStart) {
     return '\n(' + this.traceDefinition.toString() +
-      ')(window, ' + pageId + ', ' + profileId + ')\n';
+      ')(window, ' + pageId + ', ' + profileId + ', ' + recOnStart + ')\n';
   }
-  traceDefinition(global, pageId, profileId) {
+  traceDefinition(global, pageId, profileId, recOnStart) {
     var chorreador = {
       traceNumPerReport: 1000,
       reportInterval:    1000 * 2,
-      isRecording:       false,
+      isRecording:       recOnStart,
       isReporting:       false,
       pageId:            pageId,
       profileId:         profileId,

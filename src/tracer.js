@@ -1,7 +1,7 @@
 var fs = require('fs');
 class Tracer {
   get name() { return  'chorreador'; }
-  generateTraceDefinition(pageId, profileId) {
+  generateTraceDefinition(pageId, profileId, recOnStart) {
     throw new Error('not implemented');
   }
   traceDefinition(global) {

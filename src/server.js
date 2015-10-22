@@ -4,14 +4,14 @@ var express      = require('express'),
     fs           = require('fs'),
     serveIndex   = require('serve-index'),
     redirect     = require('express-redirect'),
-
     RemoteTracer = require('./remote_tracer'),
     Instrumentor = require('./instrumentor'),
     Page         = require('./page'),
     Source       = require('./source'),
     Func         = require('./func'),
     Call         = require('./call'),
-    Profile      = require('./profile');
+    Profile      = require('./profile'),
+    preference   = require('./preference');
 
 var mimeTypes   = {
   ".html": "text/html",
@@ -61,7 +61,8 @@ class Server {
       template: this.handleServeIndex.bind(this)
     }));
 
-    this.app.get('/preference',                this.handlePreference.bind(this));
+    this.app.get('/preference',                this.getPreference.bind(this));
+    this.app.post('/preference',               this.updatePreference.bind(this));
     this.app.get('/pages',                     this.handleGetPages.bind(this));
     this.app.get('/pages/:pid',                this.handleGetPage.bind(this));
     this.app.get('/sources/:src_id',           this.handleGetSource.bind(this));
@@ -88,9 +89,16 @@ class Server {
       f => path.extname(f.name) === '.html');
     callback(null, fn(locals));
   }
-  handlePreference (req, res) {
+  getPreference(req, res) {
     res.render('preference', {
-      preference:  null//preference
+      preference:  preference
+    });
+  }
+  updatePreference(req, res) {
+    console.log(req.body);
+    preference.recOnStart = req.body.recOnStart == 'true';
+    res.render('preference', {
+      preference: preference
     });
   }
   handleGetPages() {}

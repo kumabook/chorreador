@@ -52,11 +52,11 @@ class Instrumentor {
       }
     }
   }
-  static instrumentFunctionTraceDefinition2Page (page, profile, tracer) {
+  static instrumentFunctionTraceDefinition2Page (page, profile, tracer, preference) {
     var doc                = jsdom.jsdom(page.code),
         window             = doc.defaultView,
         scriptEl           = window.document.createElement("script");
-    scriptEl.innerHTML     = tracer.generateTraceDefinition(page.id, profile.id);
+    scriptEl.innerHTML     = tracer.generateTraceDefinition(page.id, profile.id, preference.recOnStart);
     window.document.head.insertBefore(scriptEl, window.document.head.firstChild);
     return doc.documentElement.outerHTML;
   }
