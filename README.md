@@ -11,7 +11,6 @@ Thank these library creators and contributors, too.
 ## How to use
 - First, install dependencies:
 ```
-    $ npm install -g coffee-script
     $ npm install
 ```
 - Copy the html and JavaScripts that you want to profile

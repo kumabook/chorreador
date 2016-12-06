@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+<title>Orion Editor Sample</title>
+<link rel="stylesheet" type="text/css" href="http://eclipse.org/orion/editor/releases/4.0/built-editor.css"/>
+<script src="http://eclipse.org/orion/editor/releases/4.0/built-editor.js"></script>
+<script>
+	/*global require*/
+	require(["orion/editor/edit"], function(edit) {
+		edit({className: "editor"});
+	});
+</script>
+</head>
+<body>
+Here is some Javascript code:
+ 
+<pre class="editor" data-editor-lang="js">
+/*
+ * This is an Orion editor sample.
+ */
+function() {
+    var a = 'hi there!';
+    window.console.log(a);
+}
+</pre>
+</body>
+</html>
+

@@ -2,25 +2,12 @@ doctype html
 html
   head
     title chorreador result page
-    meta(charset="utf-8")
-    link(href="/bower_components/pure/pure-min.css", rel="stylesheet")
-    link(href="/bower_components/SyntaxHighlighter/styles/shCore.css",
-          rel="stylesheet")
-    link(href="/bower_components/SyntaxHighlighter/styles/shThemeDefault.css",
-          rel="stylesheet")
-    script(type="text/javascript",
-            src="/bower_components/SyntaxHighlighter/scripts/XRegExp.js")
-    script(type="text/javascript",
-            src="/bower_components/SyntaxHighlighter/scripts/shCore.js")
-    script(type="text/javascript",
-            src="/bower_components/SyntaxHighlighter/scripts/shBrushJScript.js")
-    != css('built-editor')
-    != js('built-editor')
+    include ./includes/head.jade
     != js('application')
-
     script(type="text/javascript").
       window.addEventListener('load', function(e) {
         var profiles = !{JSON.stringify(profiles)}
         chorreador.run(profiles)
       })
   body
+    #chorreador-container

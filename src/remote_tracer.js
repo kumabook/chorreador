@@ -26,10 +26,11 @@ class RemoteTracer extends Tracer {
         param.args         = Array.prototype.slice.call(args);
         param.return_value = return_value;
         this.traces.push(param);
+        this.updateMessage();
         return return_value;
       },
       setupRecButton: function() {
-        var button = document.createElement('div');
+        var button   = document.createElement('div');
         button.style.width           = 100;
         button.style.height          = 100;
         button.style.top             = 0;
@@ -41,9 +42,14 @@ class RemoteTracer extends Tracer {
           this.isRecording = !this.isRecording;
           this.updateRecButton();
         };
+        this.traceNum  = document.createElement('div');
+        this.status    = document.createElement('div');
         this.recButton = button;
         this.updateRecButton();
+        this.updateMessage();
         document.body.appendChild(button);
+        button.appendChild(this.traceNum);
+        button.appendChild(this.status);
       },
       setupReporter: function() {
         setInterval(() => {
@@ -64,16 +70,22 @@ class RemoteTracer extends Tracer {
       updateRecButton: function() {
         if (this.isRecording) {
           this.recButton.style.backgroundColor = 'red';
-          this.recButton.innerHTML = 'recording';
+          this.status.innerHTML = 'recording';
         } else if (this.isReporting) {
           this.recButton.style.backgroundColor = 'blue';
-          this.recButton.innerHTML = 'reporting';
+          this.status.innerHTML = 'reporting';
         } else if (this.traces.length > 0) {
           this.recButton.style.backgroundColor = 'green';
-          this.recButton.innerHTML = 'waiting for report';
+          this.status.innerHTML = 'waiting for report';
         } else {
           this.recButton.style.backgroundColor = 'gray';
-          this.recButton.innerHTML = 'empty';
+          this.status.innerHTML = 'empty';
+        }
+      },
+      updateMessage: function() {
+        if (this.traceNum) {
+          this.traceNum.innerHTML = profileId + ': ' +
+            this.traces.length + ' traces';
         }
       },
       jsonStrOfTraces: function(traces) {
@@ -112,6 +124,7 @@ class RemoteTracer extends Tracer {
           console.log('Nothing to report');
           this.isReporting = false;
           this.updateRecButton();
+          this.updateMessage();
           return;
         }
         var xhr = new XMLHttpRequest();
@@ -130,6 +143,7 @@ class RemoteTracer extends Tracer {
         xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
         var traces = this.traces.splice(0, this.traceNumPerReport);
         this.updateRecButton();
+        this.updateMessage();
         xhr.send(this.jsonStrOfTraces(traces));
         return xhr;
       }

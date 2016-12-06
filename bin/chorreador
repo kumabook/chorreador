@@ -1,12 +1,13 @@
 #!/usr/bin/env node
+'use strict';
 
-var fs         = require('fs'),
-    path       = require('path'),
-    chorreador = require('../'),
-    yargs      = require('yargs');
+const fs         = require('fs');
+const path       = require('path');
+const chorreador = require('../');
+const yargs      = require('yargs');
 
-var argv = yargs.usage('Usage: chorreador server|instrument ...').demand(1).argv;
-var command = argv._[0];
+let argv      = yargs.usage('Usage: chorreador server|instrument ...').demand(1).argv;
+const command = argv._[0];
 switch(command) {
 case 'server':
   argv = yargs.usage('Usage: chorreador server --port NUM --dir DIR').
@@ -17,27 +18,28 @@ case 'server':
   server.run();
   break;
 case 'instrument':
-    var usage = 'Usage: chorreador instrument FILE --include_def';
+    const usage = 'Usage: chorreador instrument FILE --include_def';
     argv = yargs.usage(usage).
                  demand(1).
                  boolean(['include_def']).
                  argv;
 
-  var fileName     = argv._[1];
-  var Instrumentor = chorreador.Instrumentor;
-  var tracer       = new chorreador.ConsoleTracer();
-  var ext          = path.extname(fileName);
+  const fileName     = argv._[1];
+  const Instrumentor = chorreador.Instrumentor;
+  const tracer       = new chorreador.ConsoleTracer();
+  const ext          = path.extname(fileName);
 
   fs.readFile(fileName, (err, code) => {
     switch(ext) {
     case '.js':
-      var source = new chorreador.Source(fileName, code.toString()),
-          code   = Instrumentor.instrumentFunctionTrace(source, tracer);
+      const source       = new chorreador.Source(fileName, code.toString());
+      let instrumented   = Instrumentor.instrumentFunctionTrace(source, tracer);
+      console.log(instrumented);
       if(argv.include_def) {
-        source.code = code;
-        code        = Instrumentor.instrumentFunctionTraceDefinition(source,
+        source.code  = code;
+        instrumented = Instrumentor.instrumentFunctionTraceDefinition(source,
                                                                      tracer);
-        console.log(code);
+        console.log(instrumented);
       }
       break;
     case '.html':

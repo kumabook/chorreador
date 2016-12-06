@@ -60,20 +60,21 @@ class Server {
       icons: true,
       template: this.handleServeIndex.bind(this)
     }));
+    this.app.post('/profiles/:pid/report',   this.handleReport.bind(this));
 
-    this.app.get('/preference',                this.getPreference.bind(this));
-    this.app.post('/preference',               this.updatePreference.bind(this));
-    this.app.get('/pages',                     this.handleGetPages.bind(this));
-    this.app.get('/pages/:pid',                this.handleGetPage.bind(this));
-    this.app.get('/sources/:src_id',           this.handleGetSource.bind(this));
+    // html pages
+    this.app.get('/preference',              this.showPreference.bind(this));
+    this.app.post('/preference',             this.updatePreference.bind(this));
+    this.app.get('/profiles',                this.indexProfiles.bind(this));
 
-    this.app.get('/profiles',                  this.handleProfiles.bind(this));
-    this.app.get('/profiles/:prof_id',         this.handleProfile.bind(this));
-    this.app.get('/profiles/:prof_id/calls',   this.handleGetCalls.bind(this));
-    this.app.get('/calls/:c_id:',              this.handleGetCall.bind(this));
+    // json api
+    this.app.get('/api/pages',               this.handleGetPages.bind(this));
+    this.app.get('/api/pages/:pid',          this.handleGetPage.bind(this));
+    this.app.get('/api/sources/:src_id',     this.handleGetSource.bind(this));
+    this.app.get('/api/profiles/:pid',       this.handleProfile.bind(this));
+    this.app.get('/api/profiles/:pid/calls', this.handleGetCalls.bind(this));
+    this.app.get('/api/calls/:c_id:',        this.handleGetCall.bind(this));
 
-    this.app.post('/profiles/:prof_id',        this.handleUpdateProfile.bind(this));
-    this.app.post('/profiles/:prof_id/report', this.handleReport.bind(this));
   }
   run() {
     this.server = this.app.listen(this.port, () => {
@@ -89,7 +90,7 @@ class Server {
       f => path.extname(f.name) === '.html');
     callback(null, fn(locals));
   }
-  getPreference(req, res) {
+  showPreference(req, res) {
     res.render('preference', {
       preference:  preference
     });
@@ -103,8 +104,6 @@ class Server {
   }
   handleGetPages() {}
   handleGetPage() {}
-  handleGetSource() {}
-  handleUpdateProfile() {}
   handleGetSource (req, res) {}
   handleGetPage (req, res) {
     var page    = this.pageList.filter(h => h.id == ~~req.params.pid)[0];
@@ -115,22 +114,23 @@ class Server {
     return this.renderJSON(req, res, call);
   }
   handleGetCalls (req, res) {
-    var profile = this.profileList.filter(p => p.id == ~~req.params.prof_id)[0];
+    var profile = this.profileList.filter(p => p.id == ~~req.params.pid)[0];
     return this.renderJSON(req, res, profile.calls);
   }
-  handleProfiles (req, res) {
+  indexProfiles (req, res) {
     res.render('profiles', {
       profiles: this.profileList
     });
   }
   handleProfile (req, res) {
-    var profile = this.profileList.filter(p => p.id == ~~req.params.prof_id)[0];
-    res.render('profile', {
-      profile: profile
-    });
+    var profile = this.profileList.filter(p => p.id == ~~req.params.pid)[0];
+    var val     = profile.toJSON();
+    val.page    = profile.page;
+    val.calls   = profile.calls;
+    res.json(val);
   }
   handleReport (req, res) {
-    var profile = this.profileList.filter(p => p.id == ~~req.params.prof_id)[0];
+    var profile = this.profileList.filter(p => p.id == ~~req.params.pid)[0];
     var page    = profile.page;
     var traces  = req.body;
     traces.forEach((trace) => {
